@@ -1,0 +1,7 @@
+[Activity]
+name = JAMEdit
+activity_version = 1
+bundle_id = org.ceibaljam.jamedit
+exec = sugar-activity activity.JAMEdit -s
+icon = activity-jamedit
+license = GPLv3+
