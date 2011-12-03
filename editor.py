@@ -1,6 +1,24 @@
 #!/usr/bin/env python
 #! -*- coding: UTF-8 -*-
 
+#   editor.py por:
+#   Agustin Zubiaga <aguzubiaga97@gmail.com>
+#   Sugarlabs - CeibalJAM! - Uruguay
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
 import os
 import sys
 
@@ -11,15 +29,21 @@ import pango
 from sugar.graphics.combobox import ComboBox
 from sugar.graphics.toolcombobox import ToolComboBox
 
+from pep8_check import PEP8_Check
+
+PEP8CHECKER = PEP8_Check()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
 LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
 class Editor(gtksourceview2.View):
 
         def __init__(self, activity):
-                gtksourceview2.View.__init__(self)   
+                gtksourceview2.View.__init__(self)
 
                 self.lang = None
+                self.file = None
+
+                self.set_show_line_numbers(True)
 
                 pangoFont = pango.FontDescription('Mono')
                 self.modify_font(pangoFont)
@@ -34,13 +58,24 @@ class Editor(gtksourceview2.View):
                 select_tag = gtk.TextTag('search-select')
                 select_tag.props.background = '#B0B0FF'
                 self._tagtable.add(select_tag)
+                self.error_tag = gtk.TextTag('pep8-error')
+                self.error_tag.props.background = '#FF0000'
+                self._tagtable.add(self.error_tag)
 
                 self.buffer = gtksourceview2.Buffer(tag_table=self._tagtable)
-                self.set_buffer(self.buffer)      
+                self.set_buffer(self.buffer)
 
                 self.activity = activity
 
+                self.pep8 = PEP8_Check()
+
                 self.show_all()
+
+        def _set_show_line_numbers(self, button):
+                if button.get_active():
+                        self.set_show_line_numbers(True)
+                else:
+                        self.set_show_line_numbers(False)
 
         def _copy_cb(self, widget):
                 clipboard = gtk.Clipboard()
@@ -88,12 +123,17 @@ class Editor(gtksourceview2.View):
                         self.lang = LANGUAGE_MANAGER.get_language(id)
                         self.buffer.set_highlight_syntax(True)
                         self.buffer.set_language(self.lang)
+                        if id == "python":
+                                self.activity.edit_toolbar.pep8_btn.show()
+                        else: self.activity.edit_toolbar.pep8_btn.hide()
 
                 elif name == 0:
                         self.buffer.set_highlight_syntax(False)
                         self.lang = None
+                        self.activity.edit_toolbar.pep8_btn.hide()
  
         def _search_and_active_language(self, mimetype):
+                encontrado = False
                 for id in LANGUAGES:
                         lang = LANGUAGE_MANAGER.get_language(id)
                         if len(lang.get_mime_types()):
@@ -101,9 +141,19 @@ class Editor(gtksourceview2.View):
                                 if mimetype == mime:
                                         self.buffer.set_highlight_syntax(True)
                                         self.buffer.set_language(lang)
-                                        self.lang_combo.set_active(id+1)
+                                        list_num = LANGUAGES.index(id)
+                                        self.lang_combo.set_active(list_num+1)
+                                        encontrado = True
+
+                                        if id == "python":
+                                                self.activity.edit_toolbar.pep8_btn.show()
+                                        else: self.activity.edit_toolbar.pep8_btn.hide()
+                if not encontrado:
+                        self.buffer.set_highlight_syntax(False)
+                        self.lang_combo.set_active(0)
+                        self.lang = None
+                        self.activity.edit_toolbar.pep8_btn.hide()
                                         
-                        
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()
                 end = self.buffer.get_end_iter()
@@ -133,8 +183,10 @@ class Editor(gtksourceview2.View):
                 else:
                         prev_result = self.get_next_result('backward')
                         next_result = self.get_next_result('forward')
-                        self.activity._search_prev.props.sensitive = prev_result != None
-                        self.activity._search_next.props.sensitive = next_result != None
+                        _1 = prev_result != None
+                        _2 = next_result != None
+                        self.activity._search_prev.props.sensitive = prev_result != _1
+                        self.activity._search_next.props.sensitive = next_result != _1
 
         def set_search_text(self, text):
                 self.search_text = text
