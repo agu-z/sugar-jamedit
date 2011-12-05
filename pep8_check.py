@@ -1,38 +1,48 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
+import logging
+
+log = logging.getLogger('EditJam')
+log.setLevel(logging.DEBUG)
+logging.basicConfig()
 import commands
 
 class PEP8_Check():
 
-        def check_file(self, text, editor):
-                tmp_file = open("/tmp/jamedit-pep8-chk.py", "w")
-                tmp_file.write(text)
-                chk = self.get_check()
-                
-                tmp_file.close()
+    def check_file(self, text, editor):
+        tmp_file = open("/tmp/jamedit-pep8-chk.py", "w")
+	tmp_file.write(text)
+	tmp_file.close()
 
-                self.highlight_errors(editor, chk)
+	chk = self.get_check()
 
-        def highlight_errors(self, editor, chk):
-                for key in chk.keys():
-			# Here highlight errors whit tag pep8-error
-			pass
+	self.highlight_errors(editor, chk)
 
-        def get_check(self):
-                output = commands.getoutput("pep8 /tmp/jamedit-pep8-chk.py")
-                check = self.interpret_output(output)
-                return check
+    def highlight_errors(self, editor, chk):
+        for key in chk.keys():
+            # Here highlight errors whit tag pep8-error
+            log.debug('%s: %s' % (key, chk[key]))
 
-        def interpret_output(self, output):
-                checks = {}
-                outputs = output.split("\n")
-                for out in outputs:
-                        try:
-                                splits = out.split(":") 
-                                line = splits[1]
-                                error = splits[3]
-                                checks[line] = error
-                        except: pass
+    def get_check(self):
+        (status, output) = commands.getstatusoutput(
+		"pep8 -r /tmp/jamedit-pep8-chk.py")
+        check = self.interpret_output(output)
+        return check
 
-                return checks
+    def interpret_output(self, output):
+        checks = {}
+	outputs = output.split("\n")
+	for out in outputs:
+            try:
+                splits = out.split(":") 
+		line = splits[1]
+                character = splits[2]
+		error = splits[3]
+                if line not in checks:
+                    checks[line] = '%s:%s' % (character, error)
+                else:
+                    checks[line] = '%s; %s:%s' % (
+                        checks[line], character, error)
+	    except: pass
+
+	return checks
