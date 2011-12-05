@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-#! -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
-#   editor.py por:
+#   editor.py by/por:
 #   Agustin Zubiaga <aguzubiaga97@gmail.com>
+#   Daniel Francis <santiago.danielfrancis@gmail.com>
 #   Sugarlabs - CeibalJAM! - Uruguay
 
 # This program is free software; you can redistribute it and/or modify
@@ -45,7 +46,7 @@ class Editor(gtksourceview2.View):
 
                 self.set_show_line_numbers(True)
 
-                pangoFont = pango.FontDescription('Mono')
+                pangoFont = pango.FontDescription('Monospace 10')
                 self.modify_font(pangoFont)
 
                 bgcolor = gtk.gdk.color_parse('#FFFFFF')
@@ -102,7 +103,7 @@ class Editor(gtksourceview2.View):
 
         def _make_languages_combo(self, toolbar):
                 self.lang_combo = ComboBox()
-                self.lang_combo.append_item(None, "Texto Simple")
+                self.lang_combo.append_item(None, _("Plain text"))
                 self.lang_combo.set_active(0)
 
                 for lang in LANGUAGES:

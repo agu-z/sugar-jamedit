@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-#   activity.py por:
+#   activity.py by/por:
 #   Agustin Zubiaga <aguzubiaga97@gmail.com>
+#   Daniel Francis <santiago.danielfrancis@gmail.com>
 #   Sugarlabs - CeibalJAM! - Uruguay
 
 # This program is free software; you can redistribute it and/or modify
@@ -22,9 +23,16 @@
 import os
 import sys
 
+import gettext
+LOCALE_DIR = os.path.join(".", "locale")
+TRANSLATION_DOMAIN = "jamedit"
+gettext.install(TRANSLATION_DOMAIN, LOCALE_DIR)
+
+import pango
 import gtk
 
 import sugar
+from sugar import mime
 from sugar.graphics import iconentry
 from sugar.graphics.toolbutton import ToolButton
 from sugar.graphics.toggletoolbutton import ToggleToolButton
@@ -33,9 +41,12 @@ from sugar.activity.widgets import EditToolbar, StopButton, \
                                    ActivityToolbarButton, ToolbarButton
 from sugar.datastore import datastore
 from sugar.activity import activity
-from editor import Editor
-from filechooser import FileChooserOpen, FileChooserSave
 
+from font_options import FontToolbarOptions
+from editor import Editor, LANGUAGE_MANAGER, LANGUAGES
+import file_choosers
+file_choosers.langsmanager = LANGUAGE_MANAGER
+file_choosers.langs = LANGUAGES
 
 class JAMEdit(activity.Activity):
 
@@ -48,6 +59,7 @@ class JAMEdit(activity.Activity):
 
                 self.editor = Editor(self)
                 scroll = gtk.ScrolledWindow()
+                scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
                 scroll.add(self.editor)
                 scroll.show_all()
 
@@ -69,13 +81,13 @@ class JAMEdit(activity.Activity):
 
                 # ****** Open File button ******
                 open_btn = ToolButton("fileopen")
-                open_btn.set_tooltip("Abrir achivo")
+                open_btn.set_tooltip(_("Open File"))
                 open_btn.connect("clicked", self.open_file)
                 activity_toolbar.insert(open_btn, -1)
 
                 # ****** Save File button ******
                 save_btn = ToolButton("stock_save")
-                save_btn.set_tooltip("Guardar este archivo")
+                save_btn.set_tooltip(_("Save this file"))
                 save_btn.connect("clicked", self.save_file)
                 activity_toolbar.insert(save_btn, -1)
 
@@ -88,12 +100,12 @@ class JAMEdit(activity.Activity):
                 # Edicion / Edit Toolbar
 
                 edit_toolbar = EditToolbar()
-                edit_toolbar_button = ToolbarButton(label="Editar",
+                edit_toolbar_button = ToolbarButton(label=_("Edit"),
                                                     page=edit_toolbar,
                                                     icon_name='toolbar-edit')
 
                 edit_toolbar.cut = ToolButton("cut")
-                edit_toolbar.cut.set_tooltip("Cortar")
+                edit_toolbar.cut.set_tooltip(_("Cut"))
                 edit_toolbar.cut.set_accelerator('<ctrl>x')
                 edit_toolbar.insert(edit_toolbar.cut, 4)
 
@@ -139,13 +151,13 @@ class JAMEdit(activity.Activity):
                 self.toolbox.toolbar.insert(search_item, -1)
 
                 self._search_prev = ToolButton('go-previous-paired')
-                self._search_prev.set_tooltip('Anterior')
+                self._search_prev.set_tooltip(_('Previous'))
                 self._search_prev.connect('clicked',
                                           self.editor._search_prev_cb)
                 self.toolbox.toolbar.insert(self._search_prev, -1)
 
                 self._search_next = ToolButton('go-next-paired')
-                self._search_next.set_tooltip('Siguiente')
+                self._search_next.set_tooltip(_('Next'))
                 self._search_next.connect('clicked',
                                           self.editor._search_next_cb)
                 self.toolbox.toolbar.insert(self._search_next, -1)
@@ -155,7 +167,7 @@ class JAMEdit(activity.Activity):
                 preferences_toolbar = gtk.Toolbar()
 
                 show_line_numbers = ToggleToolButton('show-numbers')
-                show_line_numbers.set_tooltip("Mostrar numeros de linea")
+                show_line_numbers.set_tooltip(_("Show line numbers"))
 
                 show_line_numbers.set_active(True)
                 show_line_numbers.connect("clicked", \
@@ -164,6 +176,15 @@ class JAMEdit(activity.Activity):
                 preferences_toolbar.insert(show_line_numbers, -1)
 
                 self.editor._make_languages_combo(preferences_toolbar)
+                
+                #Font Options / Opciones de fuente
+                font_options = FontToolbarOptions()
+                font_options.connect("load-pango-context", self.load_pango_context)
+                font_options.load_toolbar()
+                font_options.connect("font-changed", self.change_font)
+                preferences_toolbar.insert(font_options.family_tool_item, -1)
+                preferences_toolbar.insert(font_options.face_tool_item, -1)
+                preferences_toolbar.insert(font_options.size_spin_item, -1)
 
                 preferences = ToolbarButton()
                 preferences.props.page = preferences_toolbar
@@ -171,7 +192,6 @@ class JAMEdit(activity.Activity):
                 preferences.show_all()
 
                 self.toolbar_box.toolbar.insert(preferences, -1)
-
 
                 # Separador / Separator
 
@@ -189,12 +209,27 @@ class JAMEdit(activity.Activity):
 
                 self.set_toolbar_box(self.toolbar_box)
 
+        def change_font(self, widget, family, face, size):
+                self.editor.modify_font(pango.FontDescription("%s %s %d" % (family, face, size)))
+
+        def load_pango_context(self, widget):
+                return self.editor.get_pango_context()
+        
         def pep8_check(self, widget):
                 self.editor.pep8.check_file(self.editor._get_all_text(), self.editor)
 
         def open_file(self, widget):
-                fc = FileChooserOpen(self)
-                fc.show_all()
+                file_path = file_choosers.open_file_dialog()
+                if file_path != None:
+                        self.set_title(os.path.split(file_path)[-1])
+                        mime_type = mime.get_from_file_name(file_path)            
+                        self.metadata["mime_type"] = mime_type
+                
+                        file = open(file_path, "r")
+                        self.editor.buffer.set_text(file.read())
+                        self.editor.file = file_path
+                        self.editor._search_and_active_language(mime_type)
+                        file.close()
 
         def save_file(self, widget):
                 if self.editor.file:
@@ -202,8 +237,12 @@ class JAMEdit(activity.Activity):
                         file.write(self.editor._get_all_text())
                         file.close()
                 else:
-                        fc = FileChooserSave(self)
-                        fc.show_all()
+                        file_path = file_choosers.save_file_dialog()
+                        if file_path:
+                                self.editor.file = file_path
+                                file = open(self.editor.file, "w")
+                                file.write(self.editor._get_all_text())
+                                file.close()
 
         def write_file(self, file_path):
                 if self.editor.lang:
