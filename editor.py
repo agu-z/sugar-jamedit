@@ -32,6 +32,11 @@ from sugar.graphics.toolcombobox import ToolComboBox
 
 from pep8_check import PEP8_Check
 
+STYLE_MANAGER = gtksourceview2.style_scheme_manager_get_default()
+# Style Files extracted from / Archivos Style extraidos de :
+# http://live.gnome.org/GtkSourceView/StyleSchemes
+STYLE_MANAGER.append_search_path(os.path.join(os.environ["SUGAR_BUNDLE_PATH"], "styles"))
+STYLES = STYLE_MANAGER.get_scheme_ids()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
 LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
@@ -70,6 +75,26 @@ class Editor(gtksourceview2.View):
                 self.pep8 = PEP8_Check(self.activity)
 
                 self.show_all()
+        
+        def _set_style(self, widget):
+                name = self.style_combo.get_active()
+                id = STYLES[name]
+                self.buffer.set_style_scheme(STYLE_MANAGER.get_scheme(id))
+        
+        def make_style_combo(self, toolbar):
+                self.style_combo = ComboBox()
+                count= 0
+                classic = 0
+                for style in STYLES:
+                        self.style_combo.append_item(None, style.capitalize())
+                        if style == "classic":
+                                classic = count
+                        count += 1
+                self.style_combo.set_active(classic)
+                self.style_combo.connect("changed", self._set_style)
+                tool_item = ToolComboBox(self.style_combo)
+                toolbar.insert(tool_item, -1)
+                tool_item.show_all()
 
         def _set_show_line_numbers(self, button):
                 if button.get_active():

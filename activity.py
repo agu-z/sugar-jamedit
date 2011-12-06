@@ -42,7 +42,7 @@ from sugar.activity.widgets import EditToolbar, StopButton, \
 from sugar.datastore import datastore
 from sugar.activity import activity
 
-from font_options import FontToolbarOptions
+from font_options import FontToolbarButton
 from editor import Editor, LANGUAGE_MANAGER, LANGUAGES
 import file_choosers
 file_choosers.langsmanager = LANGUAGE_MANAGER
@@ -181,15 +181,7 @@ class JAMEdit(activity.Activity):
                 preferences_toolbar.insert(show_line_numbers, -1)
 
                 self.editor._make_languages_combo(preferences_toolbar)
-                
-                #Font Options / Opciones de fuente
-                font_options = FontToolbarOptions()
-                font_options.connect("load-pango-context", self.load_pango_context)
-                font_options.load_toolbar()
-                font_options.connect("font-changed", self.change_font)
-                preferences_toolbar.insert(font_options.family_tool_item, -1)
-                preferences_toolbar.insert(font_options.face_tool_item, -1)
-                preferences_toolbar.insert(font_options.size_spin_item, -1)
+                self.editor.make_style_combo(preferences_toolbar)
 
                 preferences = ToolbarButton()
                 preferences.props.page = preferences_toolbar
@@ -197,6 +189,13 @@ class JAMEdit(activity.Activity):
                 preferences.show_all()
 
                 self.toolbar_box.toolbar.insert(preferences, -1)
+                
+                font_options = FontToolbarButton()
+                font_options.connect("load-pango-context", self.load_pango_context)
+                font_options.load_toolbar()
+                font_options.connect("font-changed", self.change_font)
+                self.toolbar_box.toolbar.insert(font_options, -1)
+                font_options.show()
 
                 # Separador / Separator
 

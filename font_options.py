@@ -25,22 +25,26 @@ import gtk
 
 from sugar.graphics.combobox import ComboBox
 from sugar.graphics.toolcombobox import ToolComboBox
+from sugar.activity.widgets import ToolbarButton
 
-class FontToolbarOptions(gobject.GObject):
+class FontToolbarButton(ToolbarButton):
         __gsignals__ = {'load-pango-context' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_PYOBJECT, tuple()),
                         'font-changed' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT))}
         def __init__(self):
-                gobject.GObject.__init__(self)
+                ToolbarButton.__init__(self)
+                self.toolbar = gtk.Toolbar()
+                self.props.page = self.toolbar
+                self.props.icon_name = 'format-text'
                 self.family = "Monospace"
-                self.face = "Regular"
+                self.current_face = "Regular"
         
         def size_changed(self, adjustment):
-                self.emit("font-changed", self.family, self.face, adjustment.get_value())
+                self.emit("font-changed", self.family, self.current_face, adjustment.get_value())
         
         def face_changed(self, widget):
                 iter = widget.get_active_iter()
-                self.face = self.faces[self.family].get_value(iter, 0)
-                self.emit('font-changed', self.family, self.face, self.size_adj.get_value())
+                self.current_face = self.faces[self.family].get_value(iter, 0)
+                self.emit('font-changed', self.family, self.current_face, self.size_adj.get_value())
         
         def family_changed(self, widget):
                 iter = widget.get_active_iter()
@@ -76,6 +80,7 @@ class FontToolbarOptions(gobject.GObject):
                 self.family_combo.show()
                 self.family_tool_item = ToolComboBox(self.family_combo)
                 self.family_tool_item.show()
+                self.toolbar.insert(self.family_tool_item, -1)
                 
                 self.face_combo = ComboBox()
                 face_renderer = gtk.CellRendererText()
@@ -90,6 +95,7 @@ class FontToolbarOptions(gobject.GObject):
                 self.face_combo.show()
                 self.face_tool_item = ToolComboBox(self.face_combo)
                 self.face_tool_item.show()
+                self.toolbar.insert(self.face_tool_item, -1)
                 
                 self.size_adj = gtk.Adjustment(value=10, lower=5, upper=100, step_incr=1)
                 self.size_adj.connect("value-changed", self.size_changed)
@@ -98,3 +104,6 @@ class FontToolbarOptions(gobject.GObject):
                 self.size_spin_item = gtk.ToolItem()
                 self.size_spin_item.add(self.size_spin)
                 self.size_spin_item.show()
+                self.toolbar.insert(self.size_spin_item, -1)
+                
+                self.toolbar.show()
