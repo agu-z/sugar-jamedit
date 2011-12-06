@@ -32,7 +32,6 @@ from sugar.graphics.toolcombobox import ToolComboBox
 
 from pep8_check import PEP8_Check
 
-PEP8CHECKER = PEP8_Check()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
 LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
@@ -68,7 +67,7 @@ class Editor(gtksourceview2.View):
 
                 self.activity = activity
 
-                self.pep8 = PEP8_Check()
+                self.pep8 = PEP8_Check(self.activity)
 
                 self.show_all()
 

@@ -58,12 +58,17 @@ class JAMEdit(activity.Activity):
                 # ****** Editor ******
 
                 self.editor = Editor(self)
+                self.editor.set_size_request(800, 790)
                 scroll = gtk.ScrolledWindow()
                 scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
                 scroll.add(self.editor)
                 scroll.show_all()
 
-                self.set_canvas(scroll)
+                vbox = gtk.VBox()
+                vbox.add(scroll)
+                vbox.show_all()
+
+                self.set_canvas(vbox)
 
                 # ****** Toolbars ******
 
@@ -208,6 +213,12 @@ class JAMEdit(activity.Activity):
                 self.toolbar_box.show_all()
 
                 self.set_toolbar_box(self.toolbar_box)
+
+                # Barra de estado de PEP8 / PEP8 status bar
+                self.pep8_bar = gtk.Statusbar()
+                self.pep8_bar.label = gtk.Label()
+                self.pep8_bar.add(self.pep8_bar.label)
+                vbox.add(self.pep8_bar)
 
         def change_font(self, widget, family, face, size):
                 self.editor.modify_font(pango.FontDescription("%s %s %d" % (family, face, size)))
