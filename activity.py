@@ -100,6 +100,7 @@ class JAMEdit(activity.Activity):
                 activity_toolbar.stop.hide()
                 save_as = gtk.MenuItem(_("Save on the file system."))
                 activity_toolbar.keep.props.palette.menu.append(save_as)
+                save_as.connect("activate", self.save_file_as)
                 save_as.show()
                 activity_toolbar.keep.show()
 
@@ -243,6 +244,20 @@ class JAMEdit(activity.Activity):
                         self.editor.file = file_path
                         self.editor._search_and_active_language(mime_type)
                         file.close()
+
+        def save_file_as(self, widget):
+                file_path = file_choosers.save_file_dialog()
+                if file_path:
+                        self.editor.file = file_path
+                        file = open(self.editor.file, "w")
+                        file.write(self.editor._get_all_text())
+                        file.close()
+
+                        self.set_title(os.path.split(file_path)[-1])
+                        mime_type = mime.get_from_file_name(file_path)            
+                        self.metadata["mime_type"] = mime_type
+                        self.editor.file = file_path
+                        self.editor._search_and_active_language(mime_type)                       
 
         def save_file(self, widget):
                 if self.editor.file:
