@@ -98,10 +98,21 @@ class JAMEdit(activity.Activity):
 
                 activity_toolbar.show_all()
                 activity_toolbar.stop.hide()
+                
+                # Guardar como / Save As
                 save_as = gtk.MenuItem(_("Save on the file system."))
                 activity_toolbar.keep.props.palette.menu.append(save_as)
                 save_as.connect("activate", self.save_file_as)
                 save_as.show()
+                
+                # Nuevo / New
+                new = ToolButton("new")
+                new.set_tooltip(_("New file"))
+                new.set_accelerator('<ctrl>n')
+                new.connect("clicked", self.new)
+                activity_toolbar.insert(new, 5)
+                new.show()
+
                 activity_toolbar.keep.show()
 
                 self.toolbar_box.toolbar.insert(activity_button, 0)
@@ -245,6 +256,17 @@ class JAMEdit(activity.Activity):
                         self.editor._search_and_active_language(mime_type)
                         file.close()
 
+        def new(self, widget):
+                self.save_file(None, type="exit")
+                self.metadata["mime_type"] = "text/x-generic"
+                self.editor.lang = None
+                self.editor.file = None
+                self.editor.lang_combo.set_active(0)
+                self.editor.buffer.set_highlight_syntax(False)
+                self.edit_toolbar.pep8_btn.hide()
+                self.editor.buffer.set_text("")
+                self.set_title(_("New"))
+
         def save_file_as(self, widget):
                 file_path = file_choosers.save_file_dialog()
                 if file_path:
@@ -259,18 +281,41 @@ class JAMEdit(activity.Activity):
                         self.editor.file = file_path
                         self.editor._search_and_active_language(mime_type)                       
 
-        def save_file(self, widget):
-                if self.editor.file:
-                        file = open(self.editor.file, "w")
-                        file.write(self.editor._get_all_text())
-                        file.close()
-                else:
-                        file_path = file_choosers.save_file_dialog()
-                        if file_path:
-                                self.editor.file = file_path
+        def save_file(self, widget, type=None, mode=1):
+                if not type:
+                        if self.editor.file:
                                 file = open(self.editor.file, "w")
                                 file.write(self.editor._get_all_text())
                                 file.close()
+                        else:
+                                file_path = file_choosers.save_file_dialog()
+                                if file_path:
+                                        self.editor.file = file_path
+                                        file = open(self.editor.file, "w")
+                                        file.write(self.editor._get_all_text())
+                                        file.close()
+                if type == "exit":
+                        dialog = gtk.MessageDialog(type=gtk.MESSAGE_QUESTION)
+                        dialog.add_buttons(gtk.STOCK_NO, gtk.RESPONSE_CANCEL, gtk.STOCK_YES, gtk.RESPONSE_ACCEPT)
+                        dialog.set_markup("<b>%s</b>" % _("Save changes..."))
+                        if mode == 1:
+                                dialog.format_secondary_text(_("Do you want to save changes?"))
+                        elif mode == 2:
+                                dialog.format_secondary_text(_("Do you want to save changes\nin the file system?"))
+                        response = dialog.run()
+                        dialog.destroy()
+                        if response == gtk.RESPONSE_ACCEPT:
+                                if self.editor.file:
+                                        file = open(self.editor.file, "w")
+                                        file.write(self.editor._get_all_text())
+                                        file.close()
+                                else:
+                                        file_path = file_choosers.save_file_dialog()
+                                        if file_path:
+                                                self.editor.file = file_path
+                                                file = open(self.editor.file, "w")
+                                                file.write(self.editor._get_all_text())
+                                                file.close()
 
         def write_file(self, file_path):
                 if self.editor.lang:
@@ -284,6 +329,9 @@ class JAMEdit(activity.Activity):
                 jfile = open(file_path, "w")
                 jfile.write(self.editor._get_all_text())
                 jfile.close()
+
+                if not self.editor.file:
+                        self.save_file(None, type="exit", mode=2)
 
         def read_file(self, file_path):
                 fpath = open(file_path, "r")
