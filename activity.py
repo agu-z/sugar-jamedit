@@ -133,6 +133,10 @@ class JAMEdit(activity.Activity):
                 separator.set_draw(False)
                 separator.set_expand(True)
                 edit_toolbar.insert(separator, -1)
+                
+                insert_datetime = gtk.ToolButton("insert-datetime")
+                insert_datetime.connect("clicked", self.editor._insert_date_time)
+                edit_toolbar.insert(insert_datetime, -1)
 
                 edit_toolbar.pep8_btn = ToolButton('pep8')
                 edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
@@ -251,6 +255,7 @@ class JAMEdit(activity.Activity):
                         activity.Activity.close(self)
 
         def open_file(self, widget):
+                self.save_file(None, type="exit")
                 file_path = file_choosers.open_file_dialog()
                 if file_path != None:
                         self.set_title(os.path.split(file_path)[-1])

@@ -22,6 +22,9 @@
 
 import os
 import sys
+import datetime
+import time
+import locale
 
 import gtk
 import gtksourceview2
@@ -182,8 +185,16 @@ class Editor(gtksourceview2.View):
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()
                 end = self.buffer.get_end_iter()
-                text = self.buffer.get_text(start, end, False)
+                text = self.buffer.get_text(start, end, True)
                 return text
+
+        def _insert_date_time(self, widget):
+                today = datetime.date.today()
+                today = today.strftime("%d/%m/%y")
+                _time = time.strftime("%H:%M:%S")
+                zone = locale.getdefaultlocale()[0]         
+                date_time = str(today)+" "+_time+"-"+zone
+                self.buffer.insert_at_cursor(date_time)
 
         def _search_entry_activate_cb(self, entry):
                 self.set_search_text(entry.props.text)
