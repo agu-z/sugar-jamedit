@@ -49,20 +49,22 @@ class PEP8_Check():
             num += 1
             if str(num) in chk:
                 line_iter = editor.buffer.get_iter_at_line(num-1)
-
-                editor.buffer.insert_with_tags(line_iter, line+"\n", editor.error_tag)
+                if num == 0:
+                    editor.buffer.insert_with_tags(line_iter, line, editor.error_tag)
+                else:
+                    editor.buffer.insert_with_tags(line_iter, "\n"+line, editor.error_tag)
             elif not num in chk:
                 char = 0
                 line_iter = editor.buffer.get_iter_at_line(num)
-                if num != len(text.split("\n")):
-                        editor.buffer.insert_with_tags_by_name(line_iter, line+"\n")
-                else:
+                if num == 0:
                         editor.buffer.insert_with_tags_by_name(line_iter, line)
+                else:
+                        editor.buffer.insert_with_tags_by_name(line_iter, "\n"+line)
         editor.connect("move-cursor", self.set_bar_text, chk)
 
     def get_check(self):
         (status, output) = commands.getstatusoutput(
-                "python pep8/pep8.py --repeat /tmp/jamedit-pep8-chk.py")
+                "pep8 --repeat /tmp/jamedit-pep8-chk.py")
         check = self.interpret_output(output)
         return check
 

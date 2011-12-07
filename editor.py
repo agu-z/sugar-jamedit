@@ -182,7 +182,7 @@ class Editor(gtksourceview2.View):
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()
                 end = self.buffer.get_end_iter()
-                text = self.buffer.get_text(start, end, True)
+                text = self.buffer.get_text(start, end, False)
                 return text
 
         def _search_entry_activate_cb(self, entry):
