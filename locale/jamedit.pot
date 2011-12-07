@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-05 09:56-0200\n"
+"POT-Creation-Date: 2011-12-07 14:49-0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,58 +17,84 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: activity.py:84
+#: activity.py:89
 msgid "Open File"
 msgstr ""
 
-#: activity.py:90
+#: activity.py:95
 msgid "Save this file"
 msgstr ""
 
 #: activity.py:103
+msgid "Save on the file system."
+msgstr ""
+
+#: activity.py:110
+msgid "New file"
+msgstr ""
+
+#: activity.py:123
 msgid "Edit"
 msgstr ""
 
-#: activity.py:108
+#: activity.py:128
 msgid "Cut"
 msgstr ""
 
-#: activity.py:154
+#: activity.py:174
 msgid "Previous"
 msgstr ""
 
-#: activity.py:160
+#: activity.py:180
 msgid "Next"
 msgstr ""
 
-#: activity.py:170
+#: activity.py:190
 msgid "Show line numbers"
 msgstr ""
 
-#: editor.py:106
+#: activity.py:276
+msgid "New"
+msgstr ""
+
+#: activity.py:308
+msgid "Save changes..."
+msgstr ""
+
+#: activity.py:310
+msgid "Do you want to save changes?"
+msgstr ""
+
+#: activity.py:312
+msgid ""
+"Do you want to save changes\n"
+"in the file system?"
+msgstr ""
+
+#: editor.py:130
 msgid "Plain text"
 msgstr ""
 
-#: file_choosers.py:7
+#: file_choosers.py:27
 msgid "Open..."
 msgstr ""
 
-#: file_choosers.py:15 file_choosers.py:63
+#: file_choosers.py:35 file_choosers.py:83
 msgid "All files"
 msgstr ""
 
-#: file_choosers.py:20 file_choosers.py:68
+#: file_choosers.py:40 file_choosers.py:88
 msgid "All text files"
 msgstr ""
 
-#: file_choosers.py:43
+#: file_choosers.py:63
 msgid "This file name already exists"
 msgstr ""
 
-#: file_choosers.py:44
+#: file_choosers.py:64
 msgid "Overwrite the file?"
 msgstr ""
 
-#: file_choosers.py:53
+#: file_choosers.py:73
 msgid "Save..."
 msgstr ""
