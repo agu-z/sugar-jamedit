@@ -65,7 +65,7 @@ class JAMEdit(activity.Activity):
                 scroll.show_all()
 
                 vbox = gtk.VBox()
-                vbox.add(scroll)
+                vbox.pack_start(scroll, True, True, 0)
                 vbox.show_all()
 
                 self.set_canvas(vbox)
@@ -98,7 +98,10 @@ class JAMEdit(activity.Activity):
 
                 activity_toolbar.show_all()
                 activity_toolbar.stop.hide()
-                activity_toolbar.keep.hide()
+                save_as = gtk.MenuItem(_("Save on the file system."))
+                activity_toolbar.keep.props.palette.menu.append(save_as)
+                save_as.show()
+                activity_toolbar.keep.show()
 
                 self.toolbar_box.toolbar.insert(activity_button, 0)
 
@@ -217,7 +220,7 @@ class JAMEdit(activity.Activity):
                 self.pep8_bar = gtk.Statusbar()
                 self.pep8_bar.label = gtk.Label()
                 self.pep8_bar.add(self.pep8_bar.label)
-                vbox.add(self.pep8_bar)
+                vbox.pack_end(self.pep8_bar, False, True, 0)
 
         def change_font(self, widget, family, face, size):
                 self.editor.modify_font(pango.FontDescription("%s %s %d" % (family, face, size)))
