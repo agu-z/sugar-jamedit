@@ -134,9 +134,10 @@ class JAMEdit(activity.Activity):
                 separator.set_expand(True)
                 edit_toolbar.insert(separator, -1)
                 
-                insert_datetime = gtk.ToolButton("insert-datetime")
+                insert_datetime = ToolButton("insert-datetime")
                 insert_datetime.connect("clicked", self.editor._insert_date_time)
                 edit_toolbar.insert(insert_datetime, -1)
+                insert_datetime.show_all()
 
                 edit_toolbar.pep8_btn = ToolButton('pep8')
                 edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
