@@ -62,7 +62,7 @@ class PEP8_Check():
 
     def get_check(self):
         (status, output) = commands.getstatusoutput(
-                "python pep8/pep8.pyc --repeat /tmp/jamedit-pep8-chk.py")
+                "python pep8/pep8.py --repeat /tmp/jamedit-pep8-chk.py")
         check = self.interpret_output(output)
         return check
 
