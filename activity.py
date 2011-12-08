@@ -88,12 +88,14 @@ class JAMEdit(activity.Activity):
                 # ****** Open File button ******
                 open_btn = ToolButton("fileopen")
                 open_btn.set_tooltip(_("Open File"))
+                open_btn.set_accelerator('<ctrl>o')
                 open_btn.connect("clicked", self.open_file)
                 activity_toolbar.insert(open_btn, -1)
 
                 # ****** Save File button ******
                 save_btn = ToolButton("stock_save")
                 save_btn.set_tooltip(_("Save this file"))
+                save_btn.set_accelerator('<ctrl>s')
                 save_btn.connect("clicked", self.save_file)
                 activity_toolbar.insert(save_btn, -1)
 
@@ -138,10 +140,12 @@ class JAMEdit(activity.Activity):
                 insert_datetime = ToolButton("insert-datetime")
                 insert_datetime.connect("clicked",
                                         self.editor._insert_date_time)
+                insert_datetime.set_tooltip(_("Insert date and time"))
                 edit_toolbar.insert(insert_datetime, -1)
                 insert_datetime.show_all()
 
                 edit_toolbar.pep8_btn = ToolButton('pep8')
+                edit_toolbar.pep8_btn.set_tooltip(_("PEP 8 Check"))
                 edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
                 edit_toolbar.insert(edit_toolbar.pep8_btn, -1)
 
