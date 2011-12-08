@@ -25,10 +25,10 @@ import gtk
 
 def open_file_dialog():
         dialog = gtk.FileChooserDialog(_("Open..."),
-                                                                   None,
-                                                                   gtk.FILE_CHOOSER_ACTION_OPEN,
-                                                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                                                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+                                       None,
+                                       gtk.FILE_CHOOSER_ACTION_OPEN,
+                                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, \
+                                               gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         dialog.set_default_response(gtk.RESPONSE_OK)
         
         filter = gtk.FileFilter()
@@ -59,7 +59,8 @@ def open_file_dialog():
 
 def confirm_overwrite(widget):
         dialog = gtk.MessageDialog(type=gtk.MESSAGE_QUESTION)
-        dialog.add_buttons(gtk.STOCK_NO, gtk.RESPONSE_CANCEL, gtk.STOCK_YES, gtk.RESPONSE_ACCEPT)
+        dialog.add_buttons(gtk.STOCK_NO, gtk.RESPONSE_CANCEL, gtk.STOCK_YES, 
+                           gtk.RESPONSE_ACCEPT)
         dialog.set_markup("<b>%s</b>" % _("This file name already exists"))
         dialog.format_secondary_text(_("Overwrite the file?"))
         response = dialog.run()
@@ -71,10 +72,10 @@ def confirm_overwrite(widget):
 
 def save_file_dialog():
         dialog = gtk.FileChooserDialog(_("Save..."),
-                                                                   None,
-                                                                   gtk.FILE_CHOOSER_ACTION_SAVE,
-                                                                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                                                        gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+                                       None,
+                                       gtk.FILE_CHOOSER_ACTION_SAVE,
+                                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                        gtk.STOCK_SAVE, gtk.RESPONSE_OK))
         dialog.set_default_response(gtk.RESPONSE_OK)
         dialog.set_do_overwrite_confirmation(True)
         dialog.connect("confirm-overwrite", confirm_overwrite)

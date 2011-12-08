@@ -48,18 +48,20 @@ class PEP8_Check():
         for line in text.split("\n"):
             num += 1
             if str(num) in chk:
-                line_iter = editor.buffer.get_iter_at_line(num-1)
-                if num == 0:
-                    editor.buffer.insert_with_tags(line_iter, line, editor.error_tag)
-                else:
-                    editor.buffer.insert_with_tags(line_iter, "\n"+line, editor.error_tag)
-            elif not num in chk:
-                char = 0
                 line_iter = editor.buffer.get_iter_at_line(num)
-                if num == 0:
+                if num == len(text.split("\n"))-1:
+                    editor.buffer.insert_with_tags(line_iter, line, \
+                                                   editor.error_tag)
+                else:
+                    editor.buffer.insert_with_tags(line_iter, line+"\n", \
+                                                   editor.error_tag)
+            else:
+                line_iter = editor.buffer.get_iter_at_line(num)
+                if num == len(text.split("\n"))-1:
                         editor.buffer.insert_with_tags_by_name(line_iter, line)
                 else:
-                        editor.buffer.insert_with_tags_by_name(line_iter, "\n"+line)
+                        editor.buffer.insert_with_tags_by_name(line_iter, \
+                                                               line+"\n")
         editor.connect("move-cursor", self.set_bar_text, chk)
 
     def get_check(self):
@@ -96,7 +98,8 @@ class PEP8_Check():
                         this_line_error = check[str(line)]
                         char = this_line_error.split(":")[0]
                         this_line_error = this_line_error.split(":")[1]
-                        self.activity.pep8_bar.label.set_text(str(line)+":"+char+" "+this_line_error)
+                        self.activity.pep8_bar.label.set_text(
+                                         str(line)+":"+char+" "+this_line_error)
                         print this_line_error
                         self.activity.pep8_bar.show_all()
                 else: self.activity.pep8_bar.hide()

@@ -60,7 +60,8 @@ class JAMEdit(activity.Activity):
                 self.editor = Editor(self)
                 self.editor.set_size_request(800, 790)
                 scroll = gtk.ScrolledWindow()
-                scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+                scroll.set_policy(gtk.POLICY_AUTOMATIC,
+								  gtk.POLICY_AUTOMATIC)
                 scroll.add(self.editor)
                 scroll.show_all()
 
@@ -98,13 +99,13 @@ class JAMEdit(activity.Activity):
 
                 activity_toolbar.show_all()
                 activity_toolbar.stop.hide()
-                
+
                 # Guardar como / Save As
                 save_as = gtk.MenuItem(_("Save on the file system."))
                 activity_toolbar.keep.props.palette.menu.append(save_as)
                 save_as.connect("activate", self.save_file_as)
                 save_as.show()
-                
+
                 # Nuevo / New
                 new = ToolButton("new")
                 new.set_tooltip(_("New file"))
@@ -133,9 +134,10 @@ class JAMEdit(activity.Activity):
                 separator.set_draw(False)
                 separator.set_expand(True)
                 edit_toolbar.insert(separator, -1)
-                
+
                 insert_datetime = ToolButton("insert-datetime")
-                insert_datetime.connect("clicked", self.editor._insert_date_time)
+                insert_datetime.connect("clicked",
+                                        self.editor._insert_date_time)
                 edit_toolbar.insert(insert_datetime, -1)
                 insert_datetime.show_all()
 
@@ -196,7 +198,7 @@ class JAMEdit(activity.Activity):
 
                 show_line_numbers.set_active(True)
                 show_line_numbers.connect("clicked", \
-                                        self.editor._set_show_line_numbers)
+                                     self.editor._set_show_line_numbers)
                 show_line_numbers.show()
                 preferences_toolbar.insert(show_line_numbers, -1)
 
@@ -209,9 +211,10 @@ class JAMEdit(activity.Activity):
                 preferences.show_all()
 
                 self.toolbar_box.toolbar.insert(preferences, -1)
-                
+
                 font_options = FontToolbarButton()
-                font_options.connect("load-pango-context", self.load_pango_context)
+                font_options.connect("load-pango-context",
+									 self.load_pango_context)
                 font_options.load_toolbar()
                 font_options.connect("font-changed", self.change_font)
                 self.toolbar_box.toolbar.insert(font_options, -1)
@@ -240,18 +243,21 @@ class JAMEdit(activity.Activity):
                 vbox.pack_end(self.pep8_bar, False, True, 0)
 
         def change_font(self, widget, family, face, size):
-                self.editor.modify_font(pango.FontDescription("%s %s %d" % (family, face, size)))
+                self.editor.modify_font(
+               pango.FontDescription("%s %s %d" % (family, face, size)))
 
         def load_pango_context(self, widget):
                 return self.editor.get_pango_context()
-        
+
         def pep8_check(self, widget):
-                self.editor.pep8.check_file(self.editor._get_all_text(), self.editor)
+                self.editor.pep8.check_file(self.editor._get_all_text(),
+										    self.editor)
 
         def close(self, skip_save=False):
                 close = True
                 if not self.editor.file:
-                        close = self.save_file(None, type="exit", mode=2)
+                        close = self.save_file(None, type="exit",
+											   mode=2)
                 if close:
                         activity.Activity.close(self)
 
@@ -260,9 +266,9 @@ class JAMEdit(activity.Activity):
                 file_path = file_choosers.open_file_dialog()
                 if file_path != None:
                         self.set_title(os.path.split(file_path)[-1])
-                        mime_type = mime.get_from_file_name(file_path)            
+                        mime_type = mime.get_from_file_name(file_path)
                         self.metadata["mime_type"] = mime_type
-                
+
                         file = open(file_path, "r")
                         self.editor.buffer.set_text(file.read())
                         self.editor.file = file_path
@@ -271,7 +277,7 @@ class JAMEdit(activity.Activity):
 
         def new(self, widget):
                 _continue = self.save_file(None, type="exit")
-                if _contiue:
+                if _continue:
                         self.metadata["mime_type"] = "text/x-generic"
                         self.editor.lang = None
                         self.editor.file = None
@@ -290,10 +296,10 @@ class JAMEdit(activity.Activity):
                         file.close()
 
                         self.set_title(os.path.split(file_path)[-1])
-                        mime_type = mime.get_from_file_name(file_path)            
+                        mime_type = mime.get_from_file_name(file_path)
                         self.metadata["mime_type"] = mime_type
                         self.editor.file = file_path
-                        self.editor._search_and_active_language(mime_type)                       
+                        self.editor._search_and_active_language(mime_type)
 
         def save_file(self, widget, type=None, mode=1):
                 if not type:
@@ -305,31 +311,46 @@ class JAMEdit(activity.Activity):
                                 file_path = file_choosers.save_file_dialog()
                                 if file_path:
                                         self.editor.file = file_path
-                                        file = open(self.editor.file, "w")
+                                        file = open(self.editor.file,
+													"w")
                                         file.write(self.editor._get_all_text())
                                         file.close()
                 if type == "exit":
-                        dialog = gtk.MessageDialog(type=gtk.MESSAGE_QUESTION)
-                        dialog.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_NO, gtk.RESPONSE_NO, gtk.STOCK_YES, gtk.RESPONSE_YES)
+                        dialog = gtk.MessageDialog(type= \
+												   gtk.MESSAGE_QUESTION)
+                        dialog.add_buttons(gtk.STOCK_CANCEL,
+									       gtk.RESPONSE_CANCEL,
+										   gtk.STOCK_NO,
+										   gtk.RESPONSE_NO,
+										   gtk.STOCK_YES,
+										   gtk.RESPONSE_YES)
                         dialog.set_markup("<b>%s</b>" % _("Save changes..."))
                         if mode == 1:
-                                dialog.format_secondary_text(_("Do you want to save changes?"))
+                                dialog.format_secondary_text(
+                                            _("Do you want to save changes?"))
                         elif mode == 2:
-                                dialog.format_secondary_text(_("Do you want to save changes\nin the file system?"))
+                                dialog.format_secondary_text(
+                        _("Do you want to save changes\nin the file system?"))
                         response = dialog.run()
                         dialog.destroy()
                         if not response == gtk.RESPONSE_CANCEL:
                                 if response == gtk.RESPONSE_YES:
                                         if self.editor.file:
-                                                file = open(self.editor.file, "w")
-                                                file.write(self.editor._get_all_text())
+                                                file = open(
+												  self.editor.file, "w")
+                                                file.write(
+										    self.editor._get_all_text())
                                                 file.close()
                                         else:
-                                                file_path = file_choosers.save_file_dialog()
+                                                file_path = \
+                                        file_choosers.save_file_dialog()
                                                 if file_path:
-                                                        self.editor.file = file_path
-                                                        file = open(self.editor.file, "w")
-                                                        file.write(self.editor._get_all_text())
+                                                        self.editor.file = \
+                                                                      file_path
+                                                        file = open(
+                                                         self.editor.file, "w")
+                                                        file.write(
+                                                   self.editor._get_all_text())
                                                         file.close()
                                 return True
                         else: return False

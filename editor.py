@@ -38,7 +38,8 @@ from pep8_check import PEP8_Check
 STYLE_MANAGER = gtksourceview2.style_scheme_manager_get_default()
 # Style Files extracted from / Archivos Style extraidos de :
 # http://live.gnome.org/GtkSourceView/StyleSchemes
-STYLE_MANAGER.append_search_path(os.path.join(os.environ["SUGAR_BUNDLE_PATH"], "styles"))
+STYLE_MANAGER.append_search_path(os.path.join(os.environ["SUGAR_BUNDLE_PATH"],
+                                              "styles"))
 STYLES = STYLE_MANAGER.get_scheme_ids()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
 LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
@@ -221,8 +222,10 @@ class Editor(gtksourceview2.View):
                         next_result = self.get_next_result('forward')
                         _1 = prev_result != None
                         _2 = next_result != None
-                        self.activity._search_prev.props.sensitive = prev_result != _1
-                        self.activity._search_next.props.sensitive = next_result != _1
+                        self.activity._search_prev.props.sensitive = \
+                                                              prev_result != _1
+                        self.activity._search_next.props.sensitive = \
+                                                              next_result != _1
 
         def set_search_text(self, text):
                 self.search_text = text
@@ -251,10 +254,14 @@ class Editor(gtksourceview2.View):
                 _buffer = self.get_buffer()
 
                 if direction == 'forward':
-                        text_iter = _buffer.get_iter_at_mark(_buffer.get_insert())
+                        text_iter = \
+                                  _buffer.get_iter_at_mark(_buffer.get_insert(
+                                                                             ))
                         text_iter.forward_char()
                 else:
-                        text_iter = _buffer.get_iter_at_mark(_buffer.get_insert())
+                        text_iter = \
+                                  _buffer.get_iter_at_mark(_buffer.get_insert(
+                                                                             ))
 
                 if direction == 'backward':
                         return text_iter.backward_search(self.search_text, 0)
