@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-07 14:49-0200\n"
+"POT-Creation-Date: 2011-12-09 11:40-0200\n"
 "PO-Revision-Date: 2011-12-05 10:03-0200\n"
 "Last-Translator: Daniel Francis <santiago.danielfrancis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,55 +17,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: activity.py:89
+#: activity.py:90
 msgid "Open File"
 msgstr "Abrir Archivo"
 
-#: activity.py:95
+#: activity.py:97
 msgid "Save this file"
 msgstr "Guardar este archivo"
 
-#: activity.py:103
+#: activity.py:106
 msgid "Save on the file system."
 msgstr "Guardar en el sistema de archivos"
 
-#: activity.py:110
+#: activity.py:113
 msgid "New file"
 msgstr "Nuevo archivo"
 
-#: activity.py:123
+#: activity.py:126
 msgid "Edit"
 msgstr "Editar"
 
-#: activity.py:128
+#: activity.py:131
 msgid "Cut"
 msgstr "Cortar"
 
-#: activity.py:174
+#: activity.py:143
+msgid "Insert date and time"
+msgstr "Insertar fecha y hora"
+
+#: activity.py:148
+msgid "PEP 8 Check"
+msgstr "Verificar PEP 8"
+
+#: activity.py:185
 msgid "Previous"
 msgstr "Anterior"
 
-#: activity.py:180
+#: activity.py:191
 msgid "Next"
 msgstr "Siguiente"
 
-#: activity.py:190
+#: activity.py:201
 msgid "Show line numbers"
 msgstr "Mostrar números de línea"
 
-#: activity.py:276
+#: activity.py:292
 msgid "New"
 msgstr "Nuevo"
 
-#: activity.py:308
+#: activity.py:331
 msgid "Save changes..."
 msgstr "Guardar cambios..."
 
-#: activity.py:310
+#: activity.py:334
 msgid "Do you want to save changes?"
 msgstr "¿Deseas guardar los cambios?"
 
-#: activity.py:312
+#: activity.py:337
 msgid ""
 "Do you want to save changes\n"
 "in the file system?"
@@ -73,7 +81,7 @@ msgstr ""
 "¿Deseas guardar los cambios\n"
 "en el sistema de archivos?"
 
-#: editor.py:130
+#: editor.py:134
 msgid "Plain text"
 msgstr "Texto simple"
 
@@ -81,22 +89,22 @@ msgstr "Texto simple"
 msgid "Open..."
 msgstr "Abrir..."
 
-#: file_choosers.py:35 file_choosers.py:83
+#: file_choosers.py:35 file_choosers.py:84
 msgid "All files"
 msgstr "Todos los archivos"
 
-#: file_choosers.py:40 file_choosers.py:88
+#: file_choosers.py:40 file_choosers.py:89
 msgid "All text files"
 msgstr "Todos los archivos de texto"
 
-#: file_choosers.py:63
+#: file_choosers.py:64
 msgid "This file name already exists"
 msgstr "Este nombre de archivo ya existe"
 
-#: file_choosers.py:64
+#: file_choosers.py:65
 msgid "Overwrite the file?"
 msgstr "¿Sobrescribir el archivo?"
 
-#: file_choosers.py:73
+#: file_choosers.py:74
 msgid "Save..."
 msgstr "Guardar..."
