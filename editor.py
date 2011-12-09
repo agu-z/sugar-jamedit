@@ -154,12 +154,16 @@ class Editor(gtksourceview2.View):
                         self.buffer.set_language(self.lang)
                         if id == "python":
                                 self.activity.edit_toolbar.pep8_btn.show()
-                        else: self.activity.edit_toolbar.pep8_btn.hide()
+                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(True)
+                        else: 
+                                self.activity.edit_toolbar.pep8_btn.hide()
+                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
 
                 elif name == 0:
                         self.buffer.set_highlight_syntax(False)
                         self.lang = None
                         self.activity.edit_toolbar.pep8_btn.hide()
+                        self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
  
         def _search_and_active_language(self, mimetype):
                 encontrado = False
@@ -176,12 +180,16 @@ class Editor(gtksourceview2.View):
 
                                         if id == "python":
                                                 self.activity.edit_toolbar.pep8_btn.show()
-                                        else: self.activity.edit_toolbar.pep8_btn.hide()
+                                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(True)
+                                        else: 
+                                                self.activity.edit_toolbar.pep8_btn.hide()
+                                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
                 if not encontrado:
                         self.buffer.set_highlight_syntax(False)
                         self.lang_combo.set_active(0)
                         self.lang = None
                         self.activity.edit_toolbar.pep8_btn.hide()
+                        self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
                                         
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()

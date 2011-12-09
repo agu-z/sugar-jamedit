@@ -142,9 +142,9 @@ class JAMEdit(activity.Activity):
                 edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
                 edit_toolbar.insert(edit_toolbar.pep8_btn, -1)
 
-                separator = gtk.SeparatorToolItem()
-                separator.set_draw(True)
-                edit_toolbar.insert(separator, -1)
+                edit_toolbar.pep8_datetime_separator = gtk.SeparatorToolItem()
+                edit_toolbar.pep8_datetime_separator.set_draw(True)
+                edit_toolbar.insert(edit_toolbar.pep8_datetime_separator, -1)
 
                 insert_datetime = ToolButton("insert-datetime")
                 insert_datetime.connect("clicked",
@@ -161,6 +161,7 @@ class JAMEdit(activity.Activity):
 
                 edit_toolbar.show_all()
                 edit_toolbar.pep8_btn.hide()
+                edit_toolbar.pep8_datetime_separator.set_draw(False)
 
                 self.toolbar_box.toolbar.insert(edit_toolbar_button, -1)
 
@@ -295,6 +296,7 @@ class JAMEdit(activity.Activity):
                         self.editor.lang_combo.set_active(0)
                         self.editor.buffer.set_highlight_syntax(False)
                         self.edit_toolbar.pep8_btn.hide()
+                        edit_toolbar.pep8_datetime_separator.set_draw(False)
                         self.editor.buffer.set_text("")
                         self.set_title(_("New"))
 
