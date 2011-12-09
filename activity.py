@@ -137,17 +137,21 @@ class JAMEdit(activity.Activity):
                 separator.set_expand(True)
                 edit_toolbar.insert(separator, -1)
 
+                edit_toolbar.pep8_btn = ToolButton('pep8')
+                edit_toolbar.pep8_btn.set_tooltip(_("PEP 8 Check"))
+                edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
+                edit_toolbar.insert(edit_toolbar.pep8_btn, -1)
+
+                separator = gtk.SeparatorToolItem()
+                separator.set_draw(True)
+                edit_toolbar.insert(separator, -1)
+
                 insert_datetime = ToolButton("insert-datetime")
                 insert_datetime.connect("clicked",
                                         self.editor._insert_date_time)
                 insert_datetime.set_tooltip(_("Insert date and time"))
                 edit_toolbar.insert(insert_datetime, -1)
                 insert_datetime.show_all()
-
-                edit_toolbar.pep8_btn = ToolButton('pep8')
-                edit_toolbar.pep8_btn.set_tooltip(_("PEP 8 Check"))
-                edit_toolbar.pep8_btn.connect("clicked", self.pep8_check)
-                edit_toolbar.insert(edit_toolbar.pep8_btn, -1)
 
                 edit_toolbar.copy.connect("clicked", self.editor._copy_cb)
                 edit_toolbar.paste.connect("clicked", self.editor._paste_cb)
@@ -266,6 +270,7 @@ class JAMEdit(activity.Activity):
                         activity.Activity.close(self)
 
         def open_file(self, widget):
+                self.editor.pep8.check_exit()
                 self.save_file(None, type="exit")
                 file_path = file_choosers.open_file_dialog()
                 if file_path != None:
@@ -280,6 +285,7 @@ class JAMEdit(activity.Activity):
                         file.close()
 
         def new(self, widget):
+                self.editor.pep8.check_exit()
                 _continue = self.save_file(None, type="exit")
                 if _continue:
                         self.metadata["mime_type"] = "text/x-generic"

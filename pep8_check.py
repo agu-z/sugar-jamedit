@@ -44,7 +44,7 @@ class PEP8_Check():
     def highlight_errors(self, editor, chk):
         text = editor._get_all_text()
         editor.buffer.set_text("")
-        num = -1
+        num = 0
         for line in text.split("\n"):
             num += 1
             if str(num) in chk:
@@ -89,17 +89,32 @@ class PEP8_Check():
         return checks
 
     def set_bar_text(self, widget, step_size, count, extend_selection, check):
-        if step_size == gtk.MOVEMENT_DISPLAY_LINES:
-                cursor_position = widget.buffer.get_property("cursor-position")
-                offset_iter = widget.buffer.get_iter_at_offset(cursor_position)
-                line = offset_iter.get_line()
-                print line
-                if str(line) in check:
-                        this_line_error = check[str(line)]
-                        char = this_line_error.split(":")[0]
-                        this_line_error = this_line_error.split(":")[1]
-                        self.activity.pep8_bar.label.set_text(
-                                         str(line)+":"+char+" "+this_line_error)
-                        print this_line_error
-                        self.activity.pep8_bar.show_all()
-                else: self.activity.pep8_bar.hide()
+        cursor_position = widget.buffer.get_property("cursor-position")
+        offset_iter = widget.buffer.get_iter_at_offset(cursor_position)
+        line = offset_iter.get_line()+2
+        if str(line) in check:
+            this_line_error = check[str(line)]
+            char = this_line_error.split(":")[0]
+            this_line_error = this_line_error.split(":")[1]
+            self.activity.pep8_bar.label.set_text(
+                                        str(line)+":"+char+" "+this_line_error)
+            print this_line_error
+            self.activity.pep8_bar.show_all()
+        else: pass
+        
+    def check_exit(self):
+        text = self.activity.editor._get_all_text()
+        self.activity.editor.buffer.set_text("")
+        editor = self.activity.editor
+        num = 0
+        for line in text.split("\n"):
+            num += 1
+            line_iter = editor.buffer.get_iter_at_line(num)
+            if num == len(text.split("\n"))-1:
+                editor.buffer.insert_with_tags_by_name(line_iter, line)
+            else:
+                editor.buffer.insert_with_tags_by_name(line_iter, \
+                                                               line+"\n")
+        
+        self.activity.pep8_bar.hide()
+        self.activity.pep8_bar.label.set_text("")
