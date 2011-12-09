@@ -28,8 +28,11 @@ from sugar.graphics.objectchooser import ObjectChooser
 
 OPEN_FROM_JOURNAL = -12
 
-def open_from_journal(button, filechooser):
-        chooser = ObjectChooser(parent=filechooser, what_filter=mime.GENERIC_TYPE_TEXT)
+def open_from_journal(button, filechooser, activity=None):
+        if filechooser:
+            chooser = ObjectChooser(parent=filechooser, what_filter=mime.GENERIC_TYPE_TEXT)
+        else:
+            chooser = ObjectChooser(what_filter=mime.GENERIC_TYPE_TEXT)
         result = chooser.run()
         chooser.destroy()
         if result == gtk.RESPONSE_ACCEPT:
@@ -37,8 +40,10 @@ def open_from_journal(button, filechooser):
                 path = str(jobject.get_file_path())
         else:
                 path = None
-        filechooser.path = path
-        filechooser.response(OPEN_FROM_JOURNAL)
+        if filechooser:
+            filechooser.path = path
+            filechooser.response(OPEN_FROM_JOURNAL)
+        else: activity.open_file(None, from_journal=path)
 
 def open_file_dialog():
         dialog = gtk.FileChooserDialog(_("Open..."),

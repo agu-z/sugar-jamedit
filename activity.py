@@ -77,9 +77,14 @@ class JAMEdit(activity.Activity):
 
                 activity_button = ActivityToolbarButton(self)
                 activity_toolbar = activity_button.page
+                
+                # Abrir objeto / Open object
+                open_obj_btn = ToolButton("open-from-journal")
+                open_obj_btn.connect("clicked", file_choosers.open_from_journal, None, self)
+                open_obj_btn.set_tooltip(_("Open object from journal"))
+                activity_toolbar.insert(open_obj_btn, -1)
 
                 # Separador / Separator
-
                 separator = gtk.SeparatorToolItem()
                 separator.set_draw(True)
                 separator.set_expand(False)
@@ -91,7 +96,7 @@ class JAMEdit(activity.Activity):
                 open_btn.set_accelerator('<ctrl>o')
                 open_btn.connect("clicked", self.open_file)
                 activity_toolbar.insert(open_btn, -1)
-
+                
                 # ****** Save File button ******
                 save_btn = ToolButton("stock_save")
                 save_btn.set_tooltip(_("Save this file"))
@@ -113,7 +118,7 @@ class JAMEdit(activity.Activity):
                 new.set_tooltip(_("New file"))
                 new.set_accelerator('<ctrl>n')
                 new.connect("clicked", self.new)
-                activity_toolbar.insert(new, 5)
+                activity_toolbar.insert(new, 6)
                 new.show()
 
                 activity_toolbar.keep.show()
@@ -270,27 +275,40 @@ class JAMEdit(activity.Activity):
                 if close:
                         activity.Activity.close(self)
 
-        def open_file(self, widget):
+        def open_file(self, widget, from_journal=False):
                 self.editor.pep8.check_exit()
                 self.save_file(None, type="exit")
-                file_path, remember = file_choosers.open_file_dialog()
-                if file_path != None:
-                        self.set_title(os.path.split(file_path)[-1])
+                if not from_journal:
+                        file_path, remember = file_choosers.open_file_dialog()
+                        if file_path != None:
+                                self.set_title(os.path.split(file_path)[-1])
+                                mime_type = mime.get_from_file_name(file_path)
+                                self.metadata["mime_type"] = mime_type
+
+                                file = open(file_path, "r")
+                                self.editor.buffer.set_text(file.read())
+                                if remember:
+                                        self.editor.file = file_path
+                                self.editor._search_and_active_language(mime_type)
+                                file.close()
+                                
+                if from_journal:
+                        file_path = from_journal
                         mime_type = mime.get_from_file_name(file_path)
                         self.metadata["mime_type"] = mime_type
 
                         file = open(file_path, "r")
                         self.editor.buffer.set_text(file.read())
-                        if remember:
-                                self.editor.file = file_path
+                        self.editor.file = file_path
                         self.editor._search_and_active_language(mime_type)
                         file.close()
+                        
 
         def new(self, widget):
                 self.editor.pep8.check_exit()
                 _continue = self.save_file(None, type="exit")
                 if _continue:
-                        self.metadata["mime_type"] = "text/x-generic"
+                        self.metadata["mime_type"] = mime.GENERIC_TYPE_TEXT
                         self.editor.lang = None
                         self.editor.file = None
                         self.editor.lang_combo.set_active(0)
@@ -373,7 +391,7 @@ class JAMEdit(activity.Activity):
                         lang_mime_type = self.editor.lang.get_mime_types()[0]
 
                 elif not self.editor.lang:
-                        lang_mime_type = "text/x-generic"
+                        lang_mime_type = mime.GENERIC_TYPE_TEXT
 
                 self.metadata['mime_type'] = lang_mime_type
 
