@@ -103,7 +103,7 @@ msgstr "Todos los archivos de texto"
 
 #: file_choosers.py:75
 msgid "Open from Journal"
-msgstr ""
+msgstr "Abrir del diario"
 
 #: file_choosers.py:94
 msgid "This file name already exists"
