@@ -23,6 +23,23 @@
 
 import gtk
 
+from sugar import mime
+from sugar.graphics.objectchooser import ObjectChooser
+
+OPEN_FROM_JOURNAL = -12
+
+def open_from_journal(button, filechooser):
+        chooser = ObjectChooser(parent=filechooser, what_filter=mime.GENERIC_TYPE_TEXT)
+        result = chooser.run()
+        chooser.destroy()
+        if result == gtk.RESPONSE_ACCEPT:
+                jobject = chooser.get_selected_object()
+                path = str(jobject.get_file_path())
+        else:
+                path = None
+        filechooser.path = path
+        filechooser.response(OPEN_FROM_JOURNAL)
+
 def open_file_dialog():
         dialog = gtk.FileChooserDialog(_("Open..."),
                                        None,
@@ -49,13 +66,21 @@ def open_file_dialog():
                 for m in lang.get_mime_types():
                         filter.add_mime_type(m)
                 dialog.add_filter(filter)
+                
+        open_from_journal_button = gtk.Button(_("Open from Journal"))
+        open_from_journal_button.connect("clicked", open_from_journal, dialog)
+        open_from_journal_button.show()
+        dialog.set_extra_widget(open_from_journal_button)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
                 to_return = dialog.get_filename()
         elif response == gtk.RESPONSE_CANCEL:
                 to_return = None
+        elif response == OPEN_FROM_JOURNAL:
+                dialog.destroy()
+                return dialog.path, False
         dialog.destroy()
-        return to_return
+        return to_return, True
 
 def confirm_overwrite(widget):
         dialog = gtk.MessageDialog(type=gtk.MESSAGE_QUESTION)

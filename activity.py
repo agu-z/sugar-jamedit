@@ -272,7 +272,7 @@ class JAMEdit(activity.Activity):
         def open_file(self, widget):
                 self.editor.pep8.check_exit()
                 self.save_file(None, type="exit")
-                file_path = file_choosers.open_file_dialog()
+                file_path, remember = file_choosers.open_file_dialog()
                 if file_path != None:
                         self.set_title(os.path.split(file_path)[-1])
                         mime_type = mime.get_from_file_name(file_path)
@@ -280,7 +280,8 @@ class JAMEdit(activity.Activity):
 
                         file = open(file_path, "r")
                         self.editor.buffer.set_text(file.read())
-                        self.editor.file = file_path
+                        if remember:
+                                self.editor.file = file_path
                         self.editor._search_and_active_language(mime_type)
                         file.close()
 
