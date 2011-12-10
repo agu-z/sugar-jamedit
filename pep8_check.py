@@ -28,9 +28,11 @@ log.setLevel(logging.DEBUG)
 logging.basicConfig()
 import commands
 
+
 class PEP8_Check():
 
-    def __init__(self, activity): self.activity = activity
+    def __init__(self, activity):
+        self.activity = activity
 
     def check_file(self, text, editor):
         tmp_file = open("/tmp/jamedit-pep8-chk.py", "w")
@@ -48,20 +50,20 @@ class PEP8_Check():
         for line in text.split("\n"):
             num += 1
             if str(num) in chk:
-                line_iter = editor.buffer.get_iter_at_line(num)
-                if num == len(text.split("\n"))-1:
+                line_iter = editor.buffer.get_iter_at_line(num + 2)
+                if num == len(text.split("\n")) - 1:
                     editor.buffer.insert_with_tags(line_iter, line, \
                                                    editor.error_tag)
                 else:
-                    editor.buffer.insert_with_tags(line_iter, line+"\n", \
+                    editor.buffer.insert_with_tags(line_iter, line + "\n", \
                                                    editor.error_tag)
             else:
                 line_iter = editor.buffer.get_iter_at_line(num)
-                if num == len(text.split("\n"))-1:
+                if num == len(text.split("\n")) - 1:
                         editor.buffer.insert_with_tags_by_name(line_iter, line)
                 else:
                         editor.buffer.insert_with_tags_by_name(line_iter, \
-                                                               line+"\n")
+                                                               line + "\n")
         editor.connect("move-cursor", self.set_bar_text, chk)
 
     def get_check(self):
@@ -75,7 +77,7 @@ class PEP8_Check():
         outputs = output.split("\n")
         for out in outputs:
             try:
-                splits = out.split(":") 
+                splits = out.split(":")
                 line = splits[1]
                 character = splits[2]
                 error = splits[3]
@@ -84,24 +86,26 @@ class PEP8_Check():
                 else:
                     checks[line] = '%s; %s:%s' % (
                         checks[line], character, error)
-            except: pass
+            except:
+                pass
 
         return checks
 
     def set_bar_text(self, widget, step_size, count, extend_selection, check):
         cursor_position = widget.buffer.get_property("cursor-position")
         offset_iter = widget.buffer.get_iter_at_offset(cursor_position)
-        line = offset_iter.get_line()+2
+        line = offset_iter.get_line()
         if str(line) in check:
             this_line_error = check[str(line)]
             char = this_line_error.split(":")[0]
             this_line_error = this_line_error.split(":")[1]
             self.activity.pep8_bar.label.set_text(
-                                        str(line)+":"+char+" "+this_line_error)
+                                str(line) + ":" + char + " " + this_line_error)
             print this_line_error
             self.activity.pep8_bar.show_all()
-        else: pass
-        
+        else:
+            pass
+
     def check_exit(self):
         text = self.activity.editor._get_all_text()
         self.activity.editor.buffer.set_text("")
@@ -110,11 +114,10 @@ class PEP8_Check():
         for line in text.split("\n"):
             num += 1
             line_iter = editor.buffer.get_iter_at_line(num)
-            if num == len(text.split("\n"))-1:
+            if num == len(text.split("\n")) - 1:
                 editor.buffer.insert_with_tags_by_name(line_iter, line)
             else:
-                editor.buffer.insert_with_tags_by_name(line_iter, \
-                                                               line+"\n")
-        
+                editor.buffer.insert_with_tags_by_name(line_iter, line + "\n")
+
         self.activity.pep8_bar.hide()
         self.activity.pep8_bar.label.set_text("")
