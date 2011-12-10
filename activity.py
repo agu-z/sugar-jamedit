@@ -48,6 +48,7 @@ import file_choosers
 file_choosers.langsmanager = LANGUAGE_MANAGER
 file_choosers.langs = LANGUAGES
 
+
 class JAMEdit(activity.Activity):
 
         def __init__(self, handle):
@@ -61,7 +62,7 @@ class JAMEdit(activity.Activity):
                 self.editor.set_size_request(800, 790)
                 scroll = gtk.ScrolledWindow()
                 scroll.set_policy(gtk.POLICY_AUTOMATIC,
-								  gtk.POLICY_AUTOMATIC)
+                                  gtk.POLICY_AUTOMATIC)
                 scroll.add(self.editor)
                 scroll.show_all()
 
@@ -77,10 +78,11 @@ class JAMEdit(activity.Activity):
 
                 activity_button = ActivityToolbarButton(self)
                 activity_toolbar = activity_button.page
-                
+
                 # Abrir objeto / Open object
                 open_obj_btn = ToolButton("open-from-journal")
-                open_obj_btn.connect("clicked", file_choosers.open_from_journal, None, self)
+                open_obj_btn.connect("clicked",
+                                   file_choosers.open_from_journal, None, self)
                 open_obj_btn.set_tooltip(_("Open object from journal"))
                 activity_toolbar.insert(open_obj_btn, -1)
 
@@ -96,7 +98,7 @@ class JAMEdit(activity.Activity):
                 open_btn.set_accelerator('<ctrl>o')
                 open_btn.connect("clicked", self.open_file)
                 activity_toolbar.insert(open_btn, -1)
-                
+
                 # ****** Save File button ******
                 save_btn = ToolButton("stock_save")
                 save_btn.set_tooltip(_("Save this file"))
@@ -228,7 +230,7 @@ class JAMEdit(activity.Activity):
 
                 font_options = FontToolbarButton()
                 font_options.connect("load-pango-context",
-									 self.load_pango_context)
+                                     self.load_pango_context)
                 font_options.load_toolbar()
                 font_options.connect("font-changed", self.change_font)
                 self.toolbar_box.toolbar.insert(font_options, -1)
@@ -265,13 +267,12 @@ class JAMEdit(activity.Activity):
 
         def pep8_check(self, widget):
                 self.editor.pep8.check_file(self.editor._get_all_text(),
-										    self.editor)
+                                            self.editor)
 
         def close(self, skip_save=False):
                 close = True
                 if not self.editor.file:
-                        close = self.save_file(None, type="exit",
-											   mode=2)
+                        close = self.save_file(None, type="exit", mode=2)
                 if close:
                         activity.Activity.close(self)
 
@@ -289,9 +290,10 @@ class JAMEdit(activity.Activity):
                                 self.editor.buffer.set_text(file.read())
                                 if remember:
                                         self.editor.file = file_path
-                                self.editor._search_and_active_language(mime_type)
+                                self.editor._search_and_active_language(
+                                                                     mime_type)
                                 file.close()
-                                
+
                 if from_journal:
                         file_path = from_journal
                         mime_type = mime.get_from_file_name(file_path)
@@ -302,7 +304,6 @@ class JAMEdit(activity.Activity):
                         self.editor.file = file_path
                         self.editor._search_and_active_language(mime_type)
                         file.close()
-                        
 
         def new(self, widget):
                 self.editor.pep8.check_exit()
@@ -342,19 +343,18 @@ class JAMEdit(activity.Activity):
                                 file_path = file_choosers.save_file_dialog()
                                 if file_path:
                                         self.editor.file = file_path
-                                        file = open(self.editor.file,
-													"w")
+                                        file = open(self.editor.file, "w")
                                         file.write(self.editor._get_all_text())
                                         file.close()
                 if type == "exit":
-                        dialog = gtk.MessageDialog(type= \
-												   gtk.MESSAGE_QUESTION)
+                        dialog = gtk.MessageDialog(type=gtk.MESSAGE_QUESTION)
                         dialog.add_buttons(gtk.STOCK_CANCEL,
-									       gtk.RESPONSE_CANCEL,
-										   gtk.STOCK_NO,
-										   gtk.RESPONSE_NO,
-										   gtk.STOCK_YES,
-										   gtk.RESPONSE_YES)
+                                           gtk.RESPONSE_CANCEL,
+                                           gtk.STOCK_NO,
+                                           gtk.RESPONSE_NO,
+                                           gtk.STOCK_YES,
+                                           gtk.RESPONSE_YES)
+
                         dialog.set_markup("<b>%s</b>" % _("Save changes..."))
                         if mode == 1:
                                 dialog.format_secondary_text(
@@ -368,9 +368,9 @@ class JAMEdit(activity.Activity):
                                 if response == gtk.RESPONSE_YES:
                                         if self.editor.file:
                                                 file = open(
-												  self.editor.file, "w")
+                                                         self.editor.file, "w")
                                                 file.write(
-										    self.editor._get_all_text())
+                                                   self.editor._get_all_text())
                                                 file.close()
                                         else:
                                                 file_path = \
@@ -384,7 +384,8 @@ class JAMEdit(activity.Activity):
                                                    self.editor._get_all_text())
                                                         file.close()
                                 return True
-                        else: return False
+                        else:
+                                return False
 
         def write_file(self, file_path):
                 if self.editor.lang:

@@ -44,6 +44,7 @@ STYLES = STYLE_MANAGER.get_scheme_ids()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
 LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
+
 class Editor(gtksourceview2.View):
 
         def __init__(self, activity):
@@ -79,15 +80,15 @@ class Editor(gtksourceview2.View):
                 self.pep8 = PEP8_Check(self.activity)
 
                 self.show_all()
-        
+
         def _set_style(self, widget):
                 name = self.style_combo.get_active()
                 id = STYLES[name]
                 self.buffer.set_style_scheme(STYLE_MANAGER.get_scheme(id))
-        
+
         def make_style_combo(self, toolbar):
                 self.style_combo = ComboBox()
-                count= 0
+                count = 0
                 classic = 0
                 for style in STYLES:
                         self.style_combo.append_item(None, style.capitalize())
@@ -116,16 +117,16 @@ class Editor(gtksourceview2.View):
 
                 self.buffer.copy_clipboard(clipboard)
                 self.buffer.delete_selection(True, True)
-                 
+
         def _paste_cb(self, widget):
                 clipboard = gtk.Clipboard()
                 text = clipboard.wait_for_text()
-                
+
                 self.buffer.insert_at_cursor(text)
 
         def _undo_cb(self, widget):
                 self.buffer.undo()
-        
+
         def _redo_cb(self, widget):
                 self.buffer.redo()
 
@@ -138,9 +139,8 @@ class Editor(gtksourceview2.View):
                         self.lang_combo.append_item(None, lang.capitalize())
 
                 self.lang_combo.connect("changed", self._set_language)
-                        
+
                 tool_item = ToolComboBox(self.lang_combo)
-                        
                 toolbar.insert(tool_item, -1)
 
                 tool_item.show()
@@ -148,23 +148,26 @@ class Editor(gtksourceview2.View):
         def _set_language(self, combo):
                 name = self.lang_combo.get_active()
                 if name != 0:
-                        id = LANGUAGES[name-1]
+                        id = LANGUAGES[name - 1]
                         self.lang = LANGUAGE_MANAGER.get_language(id)
                         self.buffer.set_highlight_syntax(True)
                         self.buffer.set_language(self.lang)
                         if id == "python":
                                 self.activity.edit_toolbar.pep8_btn.show()
-                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(True)
-                        else: 
+                                self.activity.edit_toolbar. \
+                                         pep8_datetime_separator.set_draw(True)
+                        else:
                                 self.activity.edit_toolbar.pep8_btn.hide()
-                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
+                                self.activity.edit_toolbar. \
+                                        pep8_datetime_separator.set_draw(False)
 
                 elif name == 0:
                         self.buffer.set_highlight_syntax(False)
                         self.lang = None
                         self.activity.edit_toolbar.pep8_btn.hide()
-                        self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
- 
+                        self.activity.edit_toolbar. \
+                                        pep8_datetime_separator.set_draw(False)
+
         def _search_and_active_language(self, mimetype):
                 encontrado = False
                 for id in LANGUAGES:
@@ -175,22 +178,28 @@ class Editor(gtksourceview2.View):
                                         self.buffer.set_highlight_syntax(True)
                                         self.buffer.set_language(lang)
                                         list_num = LANGUAGES.index(id)
-                                        self.lang_combo.set_active(list_num+1)
+                                        self.lang_combo.set_active(
+                                                                  list_num + 1)
                                         encontrado = True
 
                                         if id == "python":
-                                                self.activity.edit_toolbar.pep8_btn.show()
-                                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(True)
-                                        else: 
-                                                self.activity.edit_toolbar.pep8_btn.hide()
-                                                self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
+                                                self.activity.edit_toolbar. \
+                                                                pep8_btn.show()
+                                                self.activity.edit_toolbar. \
+                                         pep8_datetime_separator.set_draw(True)
+                                        else:
+                                                self.activity.edit_toolbar. \
+                                                                pep8_btn.hide()
+                                                self.activity.edit_toolbar. \
+                                        pep8_datetime_separator.set_draw(False)
                 if not encontrado:
                         self.buffer.set_highlight_syntax(False)
                         self.lang_combo.set_active(0)
                         self.lang = None
                         self.activity.edit_toolbar.pep8_btn.hide()
-                        self.activity.edit_toolbar.pep8_datetime_separator.set_draw(False)
-                                        
+                        self.activity.edit_toolbar.pep8_datetime_separator. \
+                                                                set_draw(False)
+
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()
                 end = self.buffer.get_end_iter()
@@ -201,8 +210,8 @@ class Editor(gtksourceview2.View):
                 today = datetime.date.today()
                 today = today.strftime("%d/%m/%y")
                 _time = time.strftime("%H:%M:%S")
-                zone = locale.getdefaultlocale()[0]         
-                date_time = str(today)+" "+_time+"-"+zone
+                zone = locale.getdefaultlocale()[0]
+                date_time = str(today) + " " + _time + "-" + zone
                 self.buffer.insert_at_cursor(date_time)
 
         def _search_entry_activate_cb(self, entry):
