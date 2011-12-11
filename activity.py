@@ -315,7 +315,8 @@ class JAMEdit(activity.Activity):
                         self.editor.lang_combo.set_active(0)
                         self.editor.buffer.set_highlight_syntax(False)
                         self.edit_toolbar.pep8_btn.hide()
-                        edit_toolbar.pep8_datetime_separator.set_draw(False)
+                        self.edit_toolbar.pep8_datetime_separator.set_draw(
+                                                                         False)
                         self.editor.buffer.set_text("")
                         self.set_title(_("New"))
 
