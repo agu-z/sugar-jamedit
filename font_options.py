@@ -30,13 +30,13 @@ from sugar.activity.widgets import ToolbarButton
 
 class FontToolbarButton(ToolbarButton):
         __gsignals__ = {'load-pango-context': (gobject.SIGNAL_RUN_LAST,
-                                                gobject.TYPE_PYOBJECT,
-                                                tuple()),
+                                               gobject.TYPE_PYOBJECT,
+                                               tuple()),
                         'font-changed': (gobject.SIGNAL_RUN_LAST,
                                           gobject.TYPE_NONE,
-                                         (gobject.TYPE_STRING,
-                                          gobject.TYPE_STRING,
-                                          gobject.TYPE_INT))}
+                                          (gobject.TYPE_STRING,
+                                           gobject.TYPE_STRING,
+                                           gobject.TYPE_INT))}
 
         def __init__(self):
                 ToolbarButton.__init__(self)

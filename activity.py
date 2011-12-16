@@ -42,6 +42,7 @@ from sugar.activity.widgets import EditToolbar, StopButton, \
 from sugar.datastore import datastore
 from sugar.activity import activity
 
+from pep8_check import PEP8_Check
 from font_options import FontToolbarButton
 from editor import Editor, LANGUAGE_MANAGER, LANGUAGES
 import file_choosers
@@ -58,7 +59,9 @@ class JAMEdit(activity.Activity):
 
                 # ****** Editor ******
 
-                self.editor = Editor(self)
+                self.editor = Editor()
+                self.editor.connect("pep8-aviable", self.enable_pep8)
+                
                 self.editor.set_size_request(800, 790)
                 scroll = gtk.ScrolledWindow()
                 scroll.set_policy(gtk.POLICY_AUTOMATIC,
@@ -186,9 +189,9 @@ class JAMEdit(activity.Activity):
                         iconentry.ICON_ENTRY_PRIMARY, 'system-search')
                 search_entry.add_clear_button()
                 search_entry.connect('activate',
-                                     self.editor._search_entry_activate_cb)
+                                     self._search_entry_activate_cb)
                 search_entry.connect('changed',
-                                     self.editor._search_entry_changed_cb)
+                                     self._search_entry_changed_cb)
                 search_item = gtk.ToolItem()
                 search_item.add(search_entry)
                 self.toolbox.toolbar.insert(search_item, -1)
@@ -253,11 +256,40 @@ class JAMEdit(activity.Activity):
                 self.set_toolbar_box(self.toolbar_box)
 
                 # Barra de estado de PEP8 / PEP8 status bar
+                self.pep8 = PEP8_Check()
+                
                 self.pep8_bar = gtk.Statusbar()
+                self.pep8.connect("show-bar", (lambda w, bar: bar.show_all()), self.pep8_bar)
+                self.pep8.connect("hide-bar", (lambda w, bar: bar.hide()), self.pep8_bar)
                 self.pep8_bar.label = gtk.Label()
+                self.pep8.connect("bar-text", (lambda w, t, l: l.set_text(t)), self.pep8_bar.label)
                 self.pep8_bar.add(self.pep8_bar.label)
                 vbox.pack_end(self.pep8_bar, False, True, 0)
 
+        def _search_entry_activate_cb(self, entry):
+                self.editor.set_search_text(entry.props.text)
+                self.update_search_buttons()
+
+        def _search_entry_changed_cb(self, entry):
+                self.editor.set_search_text(entry.props.text)
+                self.update_search_buttons()
+        
+        def update_search_buttons(self):
+                if len(self.editor.search_text) == 0:
+                        self._search_prev.props.sensitive = False
+                        self._search_next.props.sensitive = False
+                else:
+                        prev_result = self.editor.get_next_result('backward')
+                        next_result = self.editor.get_next_result('forward')
+                        _1 = prev_result != None
+                        _2 = next_result != None
+                        self._search_prev.props.sensitive = prev_result != _1
+                        self._search_next.props.sensitive = next_result != _1
+
+        def enable_pep8(self, widget, active):
+                self.edit_toolbar.pep8_btn.set_visible(active)
+                self.edit_toolbar.pep8_datetime_separator.set_draw(active)
+        
         def change_font(self, widget, family, face, size):
                 self.editor.modify_font(
                pango.FontDescription("%s %s %d" % (family, face, size)))
@@ -266,8 +298,7 @@ class JAMEdit(activity.Activity):
                 return self.editor.get_pango_context()
 
         def pep8_check(self, widget):
-                self.editor.pep8.check_file(self.editor._get_all_text(),
-                                            self.editor)
+                self.pep8.check_file(self.editor)
 
         def close(self, skip_save=False):
                 close = True
@@ -277,7 +308,7 @@ class JAMEdit(activity.Activity):
                         activity.Activity.close(self)
 
         def open_file(self, widget, from_journal=False):
-                self.editor.pep8.check_exit()
+                self.pep8.check_exit(self.editor.buffer, self.editor._get_all_text())
                 self.save_file(None, type="exit")
                 if not from_journal:
                         file_path, remember = file_choosers.open_file_dialog()

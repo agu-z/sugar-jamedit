@@ -26,14 +26,13 @@ import datetime
 import time
 import locale
 
+import gobject
+import pango
 import gtk
 import gtksourceview2
-import pango
 
 from sugar.graphics.combobox import ComboBox
 from sugar.graphics.toolcombobox import ToolComboBox
-
-from pep8_check import PEP8_Check
 
 STYLE_MANAGER = gtksourceview2.style_scheme_manager_get_default()
 # Style Files extracted from / Archivos Style extraidos de :
@@ -46,8 +45,10 @@ LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
 
 class Editor(gtksourceview2.View):
-
-        def __init__(self, activity):
+        __gsignals__ = {"pep8-aviable": (gobject.SIGNAL_RUN_LAST,
+                                         gobject.TYPE_NONE,
+                                         (gobject.TYPE_BOOLEAN,)),}
+        def __init__(self):
                 gtksourceview2.View.__init__(self)
 
                 self.lang = None
@@ -74,10 +75,6 @@ class Editor(gtksourceview2.View):
 
                 self.buffer = gtksourceview2.Buffer(tag_table=self._tagtable)
                 self.set_buffer(self.buffer)
-
-                self.activity = activity
-
-                self.pep8 = PEP8_Check(self.activity)
 
                 self.show_all()
 
@@ -153,20 +150,14 @@ class Editor(gtksourceview2.View):
                         self.buffer.set_highlight_syntax(True)
                         self.buffer.set_language(self.lang)
                         if id == "python":
-                                self.activity.edit_toolbar.pep8_btn.show()
-                                self.activity.edit_toolbar. \
-                                         pep8_datetime_separator.set_draw(True)
+                                self.emit("pep8-aviable", True)
                         else:
-                                self.activity.edit_toolbar.pep8_btn.hide()
-                                self.activity.edit_toolbar. \
-                                        pep8_datetime_separator.set_draw(False)
+                                self.emit("pep8-aviable", False)
 
                 elif name == 0:
                         self.buffer.set_highlight_syntax(False)
                         self.lang = None
-                        self.activity.edit_toolbar.pep8_btn.hide()
-                        self.activity.edit_toolbar. \
-                                        pep8_datetime_separator.set_draw(False)
+                        self.emit("pep8-aviable", False)
 
         def _search_and_active_language(self, mimetype):
                 encontrado = False
@@ -183,22 +174,14 @@ class Editor(gtksourceview2.View):
                                         encontrado = True
 
                                         if id == "python":
-                                                self.activity.edit_toolbar. \
-                                                                pep8_btn.show()
-                                                self.activity.edit_toolbar. \
-                                         pep8_datetime_separator.set_draw(True)
+                                                self.emit("pep8-aviable", True)
                                         else:
-                                                self.activity.edit_toolbar. \
-                                                                pep8_btn.hide()
-                                                self.activity.edit_toolbar. \
-                                        pep8_datetime_separator.set_draw(False)
+                                                self.emit("pep8-aviable", False)
                 if not encontrado:
                         self.buffer.set_highlight_syntax(False)
                         self.lang_combo.set_active(0)
                         self.lang = None
-                        self.activity.edit_toolbar.pep8_btn.hide()
-                        self.activity.edit_toolbar.pep8_datetime_separator. \
-                                                                set_draw(False)
+                        self.emit("pep8-aviable", False)
 
         def _get_all_text(self):
                 start = self.buffer.get_start_iter()
@@ -213,14 +196,6 @@ class Editor(gtksourceview2.View):
                 zone = locale.getdefaultlocale()[0]
                 date_time = str(today) + " " + _time + "-" + zone
                 self.buffer.insert_at_cursor(date_time)
-
-        def _search_entry_activate_cb(self, entry):
-                self.set_search_text(entry.props.text)
-                self._update_search_buttons()
-
-        def _search_entry_changed_cb(self, entry):
-                self.set_search_text(entry.props.text)
-                self._update_search_buttons()
 
         def _search_prev_cb(self, button):
                 self.search_next('backward')
