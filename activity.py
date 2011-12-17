@@ -45,6 +45,7 @@ from sugar.activity import activity
 from pep8_check import PEP8_Check
 from font_options import FontToolbarButton
 from editor import Editor, LANGUAGE_MANAGER, LANGUAGES
+from python_console import PythonConsole
 import file_choosers
 file_choosers.langsmanager = LANGUAGE_MANAGER
 file_choosers.langs = LANGUAGES
@@ -207,6 +208,17 @@ class JAMEdit(activity.Activity):
                 self._search_next.connect('clicked',
                                           self.editor._search_next_cb)
                 self.toolbox.toolbar.insert(self._search_next, -1)
+                
+                # Barra de estado de PEP8 / PEP8 status bar
+                self.pep8 = PEP8_Check(self)
+                
+                self.pep8_bar = gtk.Statusbar()
+                #self.pep8.connect("show-bar", (lambda w, bar: bar.show_all()), self.pep8_bar)
+                #self.pep8.connect("hide-bar", (lambda w, bar: bar.hide()), self.pep8_bar)
+                self.pep8_bar.label = gtk.Label()
+                #self.pep8.connect("bar-text", (lambda w, t, l: l.set_text(t)), self.pep8_bar.label)
+                self.pep8_bar.add(self.pep8_bar.label)
+                vbox.pack_end(self.pep8_bar, False, True, 0)
 
                 # Preferencias / preferences
 
@@ -223,6 +235,24 @@ class JAMEdit(activity.Activity):
 
                 self.editor._make_languages_combo(preferences_toolbar)
                 self.editor.make_style_combo(preferences_toolbar)
+                
+                separator = gtk.SeparatorToolItem()
+                separator.set_draw(False)
+                separator.set_expand(True)
+                preferences_toolbar.insert(separator, -1)
+                separator.show_all()
+                
+                self.python_console = PythonConsole()
+                self.python_console.showed = False
+                vbox.pack_end(self.python_console, False, True, 0)
+                
+                self.python_console.hide()
+                
+                python_console_btn = ToolButton("python-console")
+                python_console_btn.set_tooltip(_("Show or hide the python console"))
+                python_console_btn.connect("clicked", self.show_python_console)
+                preferences_toolbar.insert(python_console_btn, -1)
+                python_console_btn.show_all()
 
                 preferences = ToolbarButton()
                 preferences.props.page = preferences_toolbar
@@ -254,17 +284,15 @@ class JAMEdit(activity.Activity):
                 self.toolbar_box.show_all()
 
                 self.set_toolbar_box(self.toolbar_box)
-
-                # Barra de estado de PEP8 / PEP8 status bar
-                self.pep8 = PEP8_Check()
                 
-                self.pep8_bar = gtk.Statusbar()
-                self.pep8.connect("show-bar", (lambda w, bar: bar.show_all()), self.pep8_bar)
-                self.pep8.connect("hide-bar", (lambda w, bar: bar.hide()), self.pep8_bar)
-                self.pep8_bar.label = gtk.Label()
-                self.pep8.connect("bar-text", (lambda w, t, l: l.set_text(t)), self.pep8_bar.label)
-                self.pep8_bar.add(self.pep8_bar.label)
-                vbox.pack_end(self.pep8_bar, False, True, 0)
+        def show_python_console(self, widget):
+                if not self.python_console.showed:
+                    self.python_console.show()
+                    self.python_console.showed = True
+                    
+                else:
+                    self.python_console.hide()
+                    self.python_console.showed = False
 
         def _search_entry_activate_cb(self, entry):
                 self.editor.set_search_text(entry.props.text)
