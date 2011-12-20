@@ -19,51 +19,56 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-
-import logging
+import gobject
 import gtk
 
-log = logging.getLogger('EditJam')
-log.setLevel(logging.DEBUG)
-logging.basicConfig()
 import commands
 
 
-class PEP8_Check():
+class PEP8_Check(gobject.GObject):
+    __gsignals__ = {"hide-bar": (gobject.SIGNAL_RUN_LAST,
+                                 gobject.TYPE_NONE,
+                                 tuple()),
+                    "show-bar": (gobject.SIGNAL_RUN_LAST,
+                                 gobject.TYPE_NONE,
+                                 tuple()),
+                    "bar-text": (gobject.SIGNAL_RUN_LAST,
+                                 gobject.TYPE_NONE,
+                                 (gobject.TYPE_STRING,)),}
+    def __init__(self):
+        gobject.GObject.__init__(self)
 
-    def __init__(self, activity):
-        self.activity = activity
-
-    def check_file(self, text, editor):
+    def check_file(self, editor):
+        text = editor._get_all_text()
         tmp_file = open("/tmp/jamedit-pep8-chk.py", "w")
         tmp_file.write(text)
         tmp_file.close()
 
         chk = self.get_check()
 
-        self.highlight_errors(editor, chk)
+        self.highlight_errors(text, chk, editor)
 
-    def highlight_errors(self, editor, chk):
-        text = editor._get_all_text()
-        editor.buffer.set_text("")
+    def highlight_errors(self, text, chk, editor):
+        buffer = editor.get_buffer()
+        buffer.set_text("")
         num = 0
         for line in text.split("\n"):
             num += 1
             if str(num) in chk:
-                line_iter = editor.buffer.get_iter_at_line(num + 2)
+                line_iter = buffer.get_iter_at_line(num + 2)
                 if num == len(text.split("\n")) - 1:
-                    editor.buffer.insert_with_tags(line_iter, line, \
-                                                   editor.error_tag)
+                    buffer.insert_with_tags(line_iter, line, \
+                                            editor.error_tag)
                 else:
-                    editor.buffer.insert_with_tags(line_iter, line + "\n", \
-                                                   editor.error_tag)
+                    buffer.insert_with_tags(line_iter, line + "\n", \
+                                            editor.error_tag)
             else:
-                line_iter = editor.buffer.get_iter_at_line(num)
+                line_iter = buffer.get_iter_at_line(num)
                 if num == len(text.split("\n")) - 1:
-                        editor.buffer.insert_with_tags_by_name(line_iter, line)
+                    buffer.insert_with_tags_by_name(line_iter, line)
                 else:
-                        editor.buffer.insert_with_tags_by_name(line_iter, \
-                                                               line + "\n")
+                    buffer.insert_with_tags_by_name(line_iter, \
+                                                           line + "\n")
         editor.connect("move-cursor", self.set_bar_text, chk)
 
     def get_check(self):
@@ -99,25 +104,24 @@ class PEP8_Check():
             this_line_error = check[str(line)]
             char = this_line_error.split(":")[0]
             this_line_error = this_line_error.split(":")[1]
-            self.activity.pep8_bar.label.set_text(
-                                str(line) + ":" + char + " " + this_line_error)
+            self.emit("bar-text",
+                      str(line) + ":" + char + " " + this_line_error)
             print this_line_error
-            self.activity.pep8_bar.show_all()
+            self.emit("show-bar")
         else:
             pass
 
-    def check_exit(self):
-        text = self.activity.editor._get_all_text()
-        self.activity.editor.buffer.set_text("")
-        editor = self.activity.editor
+    def check_exit(self, buffer, text):
+        buffer.set_text("")
         num = 0
         for line in text.split("\n"):
             num += 1
-            line_iter = editor.buffer.get_iter_at_line(num)
+            line_iter = buffer.get_iter_at_line(num)
             if num == len(text.split("\n")) - 1:
-                editor.buffer.insert_with_tags_by_name(line_iter, line)
+                buffer.insert_with_tags_by_name(line_iter, line)
             else:
-                editor.buffer.insert_with_tags_by_name(line_iter, line + "\n")
+                buffer.insert_with_tags_by_name(line_iter, line + "\n")
 
-        self.activity.pep8_bar.hide()
-        self.activity.pep8_bar.label.set_text("")
+        self.emit("hide-bar")
+        self.emit("bar-text", "")
+

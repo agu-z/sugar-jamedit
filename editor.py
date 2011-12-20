@@ -34,20 +34,15 @@ import gtksourceview2
 from sugar.graphics.combobox import ComboBox
 from sugar.graphics.toolcombobox import ToolComboBox
 
-STYLE_MANAGER = gtksourceview2.style_scheme_manager_get_default()
-# Style Files extracted from / Archivos Style extraidos de :
-# http://live.gnome.org/GtkSourceView/StyleSchemes
-STYLE_MANAGER.append_search_path(os.path.join(os.environ["SUGAR_BUNDLE_PATH"],
-                                              "styles"))
-STYLES = STYLE_MANAGER.get_scheme_ids()
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
-LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
-
 
 class Editor(gtksourceview2.View):
         __gsignals__ = {"pep8-aviable": (gobject.SIGNAL_RUN_LAST,
                                          gobject.TYPE_NONE,
-                                         (gobject.TYPE_BOOLEAN,)),}
+                                         (gobject.TYPE_BOOLEAN,)),
+                        "language-changed": (gobject.SIGNAL_RUN_LAST,
+                                             gobject.TYPE_NONE,
+                                             (gobject.TYPE_STRING,)),}
         def __init__(self):
                 gtksourceview2.View.__init__(self)
 
@@ -74,35 +69,16 @@ class Editor(gtksourceview2.View):
                 self._tagtable.add(self.error_tag)
 
                 self.buffer = gtksourceview2.Buffer(tag_table=self._tagtable)
+                self.buffer.set_highlight_syntax(True)
                 self.set_buffer(self.buffer)
 
                 self.show_all()
 
-        def _set_style(self, widget):
-                name = self.style_combo.get_active()
-                id = STYLES[name]
-                self.buffer.set_style_scheme(STYLE_MANAGER.get_scheme(id))
+        def set_style(self, style):
+                self.buffer.set_style_scheme(style)
 
-        def make_style_combo(self, toolbar):
-                self.style_combo = ComboBox()
-                count = 0
-                classic = 0
-                for style in STYLES:
-                        self.style_combo.append_item(None, style.capitalize())
-                        if style == "classic":
-                                classic = count
-                        count += 1
-                self.style_combo.set_active(classic)
-                self.style_combo.connect("changed", self._set_style)
-                tool_item = ToolComboBox(self.style_combo)
-                toolbar.insert(tool_item, -1)
-                tool_item.show_all()
-
-        def _set_show_line_numbers(self, button):
-                if button.get_active():
-                        self.set_show_line_numbers(True)
-                else:
-                        self.set_show_line_numbers(False)
+        def _set_show_line_numbers(self, widget, active):
+                self.set_show_line_numbers(active)
 
         def _copy_cb(self, widget):
                 clipboard = gtk.Clipboard()
@@ -127,37 +103,9 @@ class Editor(gtksourceview2.View):
         def _redo_cb(self, widget):
                 self.buffer.redo()
 
-        def _make_languages_combo(self, toolbar):
-                self.lang_combo = ComboBox()
-                self.lang_combo.append_item(None, _("Plain text"))
-                self.lang_combo.set_active(0)
-
-                for lang in LANGUAGES:
-                        self.lang_combo.append_item(None, lang.capitalize())
-
-                self.lang_combo.connect("changed", self._set_language)
-
-                tool_item = ToolComboBox(self.lang_combo)
-                toolbar.insert(tool_item, -1)
-
-                tool_item.show()
-
-        def _set_language(self, combo):
-                name = self.lang_combo.get_active()
-                if name != 0:
-                        id = LANGUAGES[name - 1]
-                        self.lang = LANGUAGE_MANAGER.get_language(id)
-                        self.buffer.set_highlight_syntax(True)
-                        self.buffer.set_language(self.lang)
-                        if id == "python":
-                                self.emit("pep8-aviable", True)
-                        else:
-                                self.emit("pep8-aviable", False)
-
-                elif name == 0:
-                        self.buffer.set_highlight_syntax(False)
-                        self.lang = None
-                        self.emit("pep8-aviable", False)
+        def set_language(self, lang):
+                self.lang = lang
+                self.buffer.set_language(lang)
 
         def _search_and_active_language(self, mimetype):
                 encontrado = False
@@ -166,11 +114,9 @@ class Editor(gtksourceview2.View):
                         if len(lang.get_mime_types()):
                                 mime = lang.get_mime_types()[0]
                                 if mimetype == mime:
-                                        self.buffer.set_highlight_syntax(True)
                                         self.buffer.set_language(lang)
                                         list_num = LANGUAGES.index(id)
-                                        self.lang_combo.set_active(
-                                                                  list_num + 1)
+                                        self.emit("language-changed", list_num + 1)
                                         encontrado = True
 
                                         if id == "python":
@@ -178,8 +124,8 @@ class Editor(gtksourceview2.View):
                                         else:
                                                 self.emit("pep8-aviable", False)
                 if not encontrado:
-                        self.buffer.set_highlight_syntax(False)
-                        self.lang_combo.set_active(0)
+                        self.buffer.set_language(None)
+                        self.emit("language-changed", 0)
                         self.lang = None
                         self.emit("pep8-aviable", False)
 
@@ -274,4 +220,5 @@ class Editor(gtksourceview2.View):
                         _buffer.place_cursor(start)
 
                         self.scroll_to_iter(start, 0.1)
+
                         self.scroll_to_iter(end, 0.1)
