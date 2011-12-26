@@ -33,10 +33,13 @@ import gtk
 
 import sugar
 from sugar import mime
+
 from sugar.graphics import iconentry
 from sugar.graphics.toolbutton import ToolButton
+from sugar.graphics.radiotoolbutton import RadioToolButton
 from sugar.graphics.toggletoolbutton import ToggleToolButton
 from sugar.graphics.toolbarbox import ToolbarBox
+from sugar.graphics.tray import VTray
 from sugar.activity.widgets import EditToolbar, StopButton, \
                                    ActivityToolbarButton, ToolbarButton
 from sugar.datastore import datastore
@@ -45,11 +48,10 @@ from sugar.activity import activity
 from pep8_check import PEP8_Check
 import options
 from editor import Editor
-from python_console import PythonConsole
+import consoles
 import file_choosers
 file_choosers.langsmanager = options.LANGUAGE_MANAGER
 file_choosers.langs = options.LANGUAGES
-
 
 class JAMEdit(activity.Activity):
 
@@ -69,12 +71,13 @@ class JAMEdit(activity.Activity):
                 scroll.set_policy(gtk.POLICY_AUTOMATIC,
                                   gtk.POLICY_AUTOMATIC)
                 scroll.add(self.editor)
-                scroll.show_all()
 
                 vbox = gtk.VBox()
                 vpaned = gtk.VPaned()
-                vpaned.pack1(scroll)
                 vbox.pack_start(vpaned, True, True, 0)
+                vpaned.show()
+                vpaned.pack1(scroll, resize=True)
+                scroll.show_all()
 
                 self.set_canvas(vbox)
 
@@ -114,11 +117,40 @@ class JAMEdit(activity.Activity):
                 self.pep8_bar.add(self.pep8_bar.label)
                 vbox.pack_end(self.pep8_bar, False, True, 0)
                 
-                self.python_console = PythonConsole()
-                self.python_console.show()
-                vpaned.pack2(self.python_console)
+                tray = VTray()
+                self.test_notebook = gtk.Notebook()
+                self.test_notebook.set_show_tabs(False)
+                terminal = consoles.Terminal()
+                terminal.show()
+                terminal_item = RadioToolButton()
+                terminal_item.set_named_icon("console-terminal")
+                terminal_item.set_tooltip("Terminal")
+                terminal_item.connect("toggled", self.page_changed, 0)
+                terminal_item.show()
+                self.test_notebook.append_page(terminal, None)
+                tray.add_item(terminal_item)
+                python_console = consoles.PythonConsole()
+                python_console.show()
+                python_item = RadioToolButton()
+                python_item.set_named_icon("console-python")
+                python_item.set_tooltip("Python Console")
+                python_item.set_group(terminal_item)
+                python_item.connect("toggled", self.page_changed, 1)
+                python_item.show()
+                self.test_notebook.append_page(python_console)
+                tray.add_item(python_item)
+                hbox = gtk.HBox()
+                hbox.pack_start(tray, False, True, 0)
+                hbox.pack_start(self.test_notebook)
+                self.test_notebook.show()
+                vpaned.pack2(hbox, resize=True)
                 vpaned.show_all()
+                tray.show()
+                hbox.show()
                 vbox.show_all()
+
+        def page_changed(self, widget, index):
+                self.test_notebook.set_current_page(index)
 
         def change_style(self, widget, style):
                 self.editor.set_style(style)

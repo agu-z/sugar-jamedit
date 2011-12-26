@@ -35,6 +35,7 @@ from sugar.graphics.combobox import ComboBox
 from sugar.graphics.toolcombobox import ToolComboBox
 
 LANGUAGE_MANAGER = gtksourceview2.language_manager_get_default()
+LANGUAGES = LANGUAGE_MANAGER.get_language_ids()
 
 class Editor(gtksourceview2.View):
         __gsignals__ = {"pep8-aviable": (gobject.SIGNAL_RUN_LAST,
